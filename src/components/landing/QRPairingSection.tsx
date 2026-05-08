@@ -4,14 +4,14 @@ import { Card } from '@/components/ui/Card.tsx';
 
 export const QRPairingSection = () => {
     return (
-        <section className="py-32 px-4 bg-neutral-50 border-y border-neutral-100">
+        <section className="py-20 px-4 bg-neutral-50 border-y border-neutral-100 sm:py-32">
             <div className="max-w-6xl mx-auto grid md:grid-cols-2 items-center gap-10 md:gap-16">
                 <div>
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-neutral-400 mb-4">Seamless Connection</p>
-                    <h2 className="mb-5 text-3xl font-bold leading-[1.15] tracking-tight text-black sm:text-4xl lg:mb-8 lg:text-5xl">
+                    <h2 className="mb-4 text-2xl font-bold leading-[1.15] tracking-tight text-black sm:text-4xl lg:mb-8 lg:text-5xl">
                         Connect devices with a simple scan.
                     </h2>
-                    <p className="mb-8 max-w-md text-sm leading-relaxed text-neutral-500 sm:text-base lg:mb-10 lg:text-lg">
+                    <p className="mb-6 max-w-md text-xs leading-relaxed text-neutral-500 sm:text-base lg:mb-10 lg:text-lg">
                         Scan the unique session QR code from any secondary device to establish a secure, encrypted direct p2p handshake. 
                     </p>
                     
@@ -21,7 +21,7 @@ export const QRPairingSection = () => {
                             "Encrypted signaling",
                             "Auto-reconnect technology"
                         ].map((text, i) => (
-                            <li key={i} className="flex items-center gap-3 text-sm font-medium text-black">
+                            <li key={i} className="flex items-center gap-3 text-xs font-medium text-black sm:text-sm">
                                 <div className="w-1.5 h-1.5 bg-black rounded-full" />
                                 {text}
                             </li>

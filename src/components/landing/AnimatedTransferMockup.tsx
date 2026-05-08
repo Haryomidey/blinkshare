@@ -4,8 +4,8 @@ import { Card } from '@/components/ui/Card.tsx';
 
 export const AnimatedTransferMockup = () => {
     return (
-        <section className="py-24 bg-white px-4">
-            <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 border-y border-neutral-100 py-24">
+        <section className="py-20 bg-white px-4 sm:py-24">
+            <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 border-y border-neutral-100 py-20 sm:gap-12 sm:py-24">
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -18,7 +18,7 @@ export const AnimatedTransferMockup = () => {
                                 <Laptop className="w-5 h-5" />
                             </div>
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-tight">Main Workstation</p>
+                                <p className="text-[11px] font-bold uppercase tracking-tight sm:text-xs">Main Workstation</p>
                                 <p className="text-[10px] text-neutral-400">Connected</p>
                             </div>
                         </div>
@@ -74,7 +74,7 @@ export const AnimatedTransferMockup = () => {
                                 <Smartphone className="w-5 h-5" />
                             </div>
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-tight">Mobile Device</p>
+                                <p className="text-[11px] font-bold uppercase tracking-tight sm:text-xs">Mobile Device</p>
                                 <p className="text-[10px] text-neutral-400">Ready</p>
                             </div>
                         </div>

@@ -50,20 +50,20 @@ export default function Landing() {
                         <a 
                             href="#features" 
                             onClick={() => setIsMenuOpen(false)}
-                            className="text-xl font-bold uppercase tracking-tighter text-black transition-colors hover:text-neutral-500 sm:text-2xl"
+                            className="text-lg font-bold uppercase tracking-tight text-black transition-colors hover:text-neutral-500 sm:text-2xl"
                         >
                             Features
                         </a>
                         <a 
                             href="#security" 
                             onClick={() => setIsMenuOpen(false)}
-                            className="text-xl font-bold uppercase tracking-tighter text-black transition-colors hover:text-neutral-500 sm:text-2xl"
+                            className="text-lg font-bold uppercase tracking-tight text-black transition-colors hover:text-neutral-500 sm:text-2xl"
                         >
                             Security
                         </a>
                         <a 
                             href="/app" 
-                            className="w-full rounded-sm bg-black px-8 py-4 text-center text-xl font-bold uppercase tracking-tighter text-white sm:px-10 sm:py-5 sm:text-2xl"
+                            className="w-full rounded-sm bg-black px-8 py-4 text-center text-lg font-bold uppercase tracking-tight text-white sm:px-10 sm:py-5 sm:text-2xl"
                         >
                             Launch Dashboard
                         </a>
