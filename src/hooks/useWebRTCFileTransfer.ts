@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, realtimeUrl } from '@/services/api.ts';
 import type { Transfer, TransferFile } from '@/types/transfer.ts';
 
@@ -18,16 +18,174 @@ interface UseWebRTCFileTransferOptions {
 type FileProgressPatch = { id: string; progress: number; status: TransferFile['status'] };
 
 const chunkSize = 16 * 1024;
+const maxBufferedAmount = 512 * 1024;
+const lowBufferedAmount = 256 * 1024;
+
+const downloadReceivedFile = (url: string, name: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = name;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+};
 
 export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWebRTCFileTransferOptions) => {
     const [connectionState, setConnectionState] = useState<'waiting' | 'connecting' | 'connected' | 'completed' | 'failed'>('waiting');
     const [receivedFiles, setReceivedFiles] = useState<ReceivedFile[]>([]);
+    const [isPaused, setIsPaused] = useState(false);
+    const [isSending, setIsSending] = useState(false);
     const socketRef = useRef<WebSocket | null>(null);
     const peerRef = useRef<RTCPeerConnection | null>(null);
     const channelRef = useRef<RTCDataChannel | null>(null);
     const hasStartedSendingRef = useRef(false);
+    const isPausedRef = useRef(false);
+    const pendingIceCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
+    const removedFileIdsRef = useRef(new Set<string>());
+    const transferRef = useRef<Transfer | null>(transfer);
     const chunksRef = useRef<ArrayBuffer[]>([]);
     const activeFileRef = useRef<{ id: string; name: string; size: number; receivedBytes: number } | null>(null);
+
+    useEffect(() => {
+        transferRef.current = transfer;
+    }, [transfer]);
+
+    const pauseUploads = useCallback(() => {
+        isPausedRef.current = true;
+        setIsPaused(true);
+    }, []);
+
+    const resumeUploads = useCallback(() => {
+        isPausedRef.current = false;
+        setIsPaused(false);
+    }, []);
+
+    const waitWhilePaused = () => new Promise<void>((resolve) => {
+        const check = () => {
+            if (!isPausedRef.current) {
+                resolve();
+                return;
+            }
+
+            window.setTimeout(check, 150);
+        };
+
+        check();
+    });
+
+    const updateProgress = useCallback(async (
+        bytesTransferred: number,
+        files: FileProgressPatch[],
+        status: Transfer['status'],
+        speed = 0
+    ) => {
+        const currentTransfer = transferRef.current;
+        if (!currentTransfer) return;
+
+        await api.updateTransferProgress(currentTransfer.id, {
+            bytesTransferred,
+            progress: Math.min(100, (bytesTransferred / Math.max(currentTransfer.size, 1)) * 100),
+            speed,
+            status,
+            files,
+        }).catch(() => undefined);
+    }, []);
+
+    const waitForBufferedAmount = (channel: RTCDataChannel) => new Promise<void>((resolve) => {
+        if (channel.bufferedAmount < maxBufferedAmount) {
+            resolve();
+            return;
+        }
+
+        channel.bufferedAmountLowThreshold = lowBufferedAmount;
+        channel.onbufferedamountlow = () => resolve();
+    });
+
+    const sendFileBatch = useCallback(async (files: File[], transferFiles: TransferFile[]) => {
+        const channel = channelRef.current;
+        const currentTransfer = transferRef.current;
+        if (!channel || channel.readyState !== 'open' || !currentTransfer || files.length === 0) return;
+
+        setIsSending(true);
+        setConnectionState('connected');
+        await api.startTransfer(currentTransfer.id).catch(() => undefined);
+
+        try {
+            let batchSent = 0;
+            let lastSent = 0;
+            let lastTime = performance.now();
+
+            for (const [index, file] of files.entries()) {
+                const transferFile = transferFiles[index];
+                if (!transferFile) continue;
+                if (removedFileIdsRef.current.has(transferFile.id)) continue;
+
+                channel.send(JSON.stringify({ type: 'file-start', id: transferFile.id, name: file.name, size: file.size }));
+
+                let offset = 0;
+
+                while (offset < file.size) {
+                    await waitWhilePaused();
+
+                    if (removedFileIdsRef.current.has(transferFile.id)) {
+                        channel.send(JSON.stringify({ type: 'file-cancel', id: transferFile.id }));
+                        break;
+                    }
+
+                    const slice = file.slice(offset, offset + chunkSize);
+                    const buffer = await slice.arrayBuffer();
+                    await waitForBufferedAmount(channel);
+                    channel.send(buffer);
+                    offset += buffer.byteLength;
+                    batchSent += buffer.byteLength;
+
+                    const now = performance.now();
+                    if (now - lastTime > 1000 || offset >= file.size) {
+                        const speed = Math.round(((batchSent - lastSent) / Math.max(now - lastTime, 1)) * 1000);
+                        lastSent = batchSent;
+                        lastTime = now;
+                        const isFileComplete = offset >= file.size;
+                        const isBatchComplete = isFileComplete && index === files.length - 1;
+
+                        void updateProgress(batchSent, [{
+                            id: transferFile.id,
+                            progress: Math.min(100, (offset / Math.max(file.size, 1)) * 100),
+                            status: isFileComplete ? 'completed' : 'transferring',
+                        }], isBatchComplete ? 'completed' : 'transferring', speed);
+                    }
+                }
+
+                if (!removedFileIdsRef.current.has(transferFile.id)) {
+                    channel.send(JSON.stringify({ type: 'file-end', id: transferFile.id }));
+                }
+            }
+
+            channel.send(JSON.stringify({ type: 'transfer-complete' }));
+            setConnectionState('completed');
+        } finally {
+            setIsSending(false);
+        }
+    }, [updateProgress]);
+
+    const addFiles = useCallback(async (files: File[]) => {
+        const currentTransfer = transferRef.current;
+        if (!currentTransfer || files.length === 0) return;
+
+        const result = await api.addTransferFiles(currentTransfer.id, files);
+        transferRef.current = result.transfer;
+        await sendFileBatch(files, result.files);
+    }, [sendFileBatch]);
+
+    const removeFile = useCallback(async (fileId: string) => {
+        const currentTransfer = transferRef.current;
+        if (!currentTransfer) return;
+
+        removedFileIdsRef.current.add(fileId);
+        channelRef.current?.send(JSON.stringify({ type: 'file-cancel', id: fileId }));
+        const updatedTransfer = await api.removeTransferFile(currentTransfer.id, fileId);
+        transferRef.current = updatedTransfer;
+    }, []);
 
     useEffect(() => {
         if (!transfer) return;
@@ -36,6 +194,7 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
         const peer = new RTCPeerConnection({
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
         });
+        let offerRetryId = 0;
 
         socketRef.current = socket;
         peerRef.current = peer;
@@ -47,8 +206,23 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
             }
         };
 
+        const addIceCandidate = async (candidate: RTCIceCandidateInit) => {
+            if (!peer.remoteDescription) {
+                pendingIceCandidatesRef.current.push(candidate);
+                return;
+            }
+
+            await peer.addIceCandidate(new RTCIceCandidate(candidate)).catch(() => undefined);
+        };
+
+        const flushPendingIceCandidates = async () => {
+            const candidates = pendingIceCandidatesRef.current.splice(0);
+            await Promise.all(candidates.map((candidate) => addIceCandidate(candidate)));
+        };
+
         const sendOffer = async () => {
             if (role !== 'sender') return;
+
             const offer = await peer.createOffer();
             await peer.setLocalDescription(offer);
             sendSignal('signal:offer', offer);
@@ -61,7 +235,7 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
                 setConnectionState('connected');
                 if (role === 'sender' && !hasStartedSendingRef.current) {
                     hasStartedSendingRef.current = true;
-                    void sendFiles(channel);
+                    void sendFileBatch(localFiles, transfer.files.slice(0, localFiles.length));
                 }
             };
             channel.onclose = () => setConnectionState((current) => current === 'completed' ? current : 'waiting');
@@ -76,82 +250,6 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
             };
         };
 
-        const updateProgress = async (
-            bytesTransferred: number,
-            files: FileProgressPatch[],
-            status: Transfer['status'],
-            speed = 0
-        ) => {
-            await api.updateTransferProgress(transfer.id, {
-                bytesTransferred,
-                progress: Math.min(100, (bytesTransferred / Math.max(transfer.size, 1)) * 100),
-                speed,
-                status,
-                files,
-            }).catch(() => undefined);
-        };
-
-        const waitForBufferedAmount = (channel: RTCDataChannel) => new Promise<void>((resolve) => {
-            if (channel.bufferedAmount < 512 * 1024) {
-                resolve();
-                return;
-            }
-
-            channel.bufferedAmountLowThreshold = 256 * 1024;
-            channel.onbufferedamountlow = () => resolve();
-        });
-
-        const sendFiles = async (channel: RTCDataChannel) => {
-            let totalSent = 0;
-            let lastSent = 0;
-            let lastTime = performance.now();
-            const progressFiles: FileProgressPatch[] = transfer.files.map((file) => ({
-                id: file.id,
-                progress: 0,
-                status: 'waiting',
-            }));
-
-            await api.startTransfer(transfer.id).catch(() => undefined);
-
-            for (const [index, file] of localFiles.entries()) {
-                const transferFile = transfer.files[index];
-                if (!transferFile) continue;
-
-                channel.send(JSON.stringify({ type: 'file-start', id: transferFile.id, name: file.name, size: file.size }));
-
-                let offset = 0;
-                progressFiles[index] = { id: transferFile.id, progress: 0, status: 'transferring' };
-
-                while (offset < file.size) {
-                    const slice = file.slice(offset, offset + chunkSize);
-                    const buffer = await slice.arrayBuffer();
-                    await waitForBufferedAmount(channel);
-                    channel.send(buffer);
-                    offset += buffer.byteLength;
-                    totalSent += buffer.byteLength;
-
-                    const now = performance.now();
-                    if (now - lastTime > 500 || offset >= file.size) {
-                        const speed = Math.round(((totalSent - lastSent) / Math.max(now - lastTime, 1)) * 1000);
-                        lastSent = totalSent;
-                        lastTime = now;
-                        progressFiles[index] = {
-                            id: transferFile.id,
-                            progress: Math.min(100, (offset / Math.max(file.size, 1)) * 100),
-                            status: offset >= file.size ? 'completed' : 'transferring',
-                        };
-                        await updateProgress(totalSent, progressFiles, offset >= file.size && index === localFiles.length - 1 ? 'completed' : 'transferring', speed);
-                    }
-                }
-
-                channel.send(JSON.stringify({ type: 'file-end', id: transferFile.id }));
-            }
-
-            channel.send(JSON.stringify({ type: 'transfer-complete' }));
-            await updateProgress(transfer.size, progressFiles.map((file) => ({ ...file, progress: 100, status: 'completed' })), 'completed');
-            setConnectionState('completed');
-        };
-
         const handleControlMessage = (message: { type: string; id?: string; name?: string; size?: number }) => {
             if (message.type === 'file-start' && message.id && message.name && typeof message.size === 'number') {
                 activeFileRef.current = { id: message.id, name: message.name, size: message.size, receivedBytes: 0 };
@@ -163,6 +261,12 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
                 const blob = new Blob(chunksRef.current);
                 const url = URL.createObjectURL(blob);
                 setReceivedFiles((current) => [...current, { ...activeFile, url }]);
+                downloadReceivedFile(url, activeFile.name);
+                chunksRef.current = [];
+                activeFileRef.current = null;
+            }
+
+            if (message.type === 'file-cancel' && message.id === activeFileRef.current?.id) {
                 chunksRef.current = [];
                 activeFileRef.current = null;
             }
@@ -207,7 +311,17 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
 
         socket.onopen = () => {
             socket.send(JSON.stringify({ type: 'signal:join', transferId: transfer.id, role }));
-            if (role === 'sender') void sendOffer();
+            if (role === 'sender') {
+                void sendOffer();
+                offerRetryId = window.setInterval(() => {
+                    if (channelRef.current?.readyState === 'open') {
+                        window.clearInterval(offerRetryId);
+                        return;
+                    }
+
+                    void sendOffer().catch(() => undefined);
+                }, 2000);
+            }
         };
 
         socket.onmessage = async (message) => {
@@ -219,6 +333,7 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
 
             if (event.type === 'signal:offer' && role === 'receiver') {
                 await peer.setRemoteDescription(new RTCSessionDescription(event.payload));
+                await flushPendingIceCandidates();
                 const answer = await peer.createAnswer();
                 await peer.setLocalDescription(answer);
                 sendSignal('signal:answer', answer);
@@ -226,19 +341,35 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
 
             if (event.type === 'signal:answer' && role === 'sender') {
                 await peer.setRemoteDescription(new RTCSessionDescription(event.payload));
+                await flushPendingIceCandidates();
             }
 
             if (event.type === 'signal:ice') {
-                await peer.addIceCandidate(new RTCIceCandidate(event.payload)).catch(() => undefined);
+                await addIceCandidate(event.payload);
             }
         };
 
         return () => {
+            window.clearInterval(offerRetryId);
+            pendingIceCandidatesRef.current = [];
             socket.close();
             peer.close();
             receivedFiles.forEach((file) => URL.revokeObjectURL(file.url));
         };
     }, [transfer?.id, role]);
 
-    return useMemo(() => ({ connectionState, receivedFiles }), [connectionState, receivedFiles]);
+    return useMemo(
+        () => ({
+            addFiles,
+            canSend: channelRef.current?.readyState === 'open',
+            connectionState,
+            isPaused,
+            isSending,
+            pauseUploads,
+            receivedFiles,
+            removeFile,
+            resumeUploads,
+        }),
+        [addFiles, connectionState, isPaused, isSending, pauseUploads, receivedFiles, removeFile, resumeUploads]
+    );
 };

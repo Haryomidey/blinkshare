@@ -30,8 +30,8 @@ export default function Receive() {
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <Badge className="mb-4">Receive</Badge>
-                    <h1 className="text-4xl font-bold tracking-tighter text-black">Ready to Receive</h1>
-                    <p className="text-neutral-500 mt-2">Share this code or invite link with the sender.</p>
+                    <h1 className="text-3xl font-bold tracking-tighter text-black sm:text-4xl">Ready to Receive</h1>
+                    <p className="mt-2 text-sm text-neutral-500 sm:text-base">Share this code or invite link with the sender.</p>
                     {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
                 </div>
             </header>
@@ -65,7 +65,9 @@ export default function Receive() {
                             {session?.status === 'paired' ? 'Sender Connected' : 'Waiting for Sender'}
                         </h3>
                         <p className="text-sm text-neutral-500 max-w-xs">
-                            Keep this page open. You will move to the transfer screen as soon as the sender connects.
+                            {session?.status === 'paired'
+                                ? 'Sender is paired. Keep this page open while they choose files.'
+                                : 'Keep this page open. You will move to the transfer screen when the sender starts the transfer.'}
                         </p>
                     </Card>
 

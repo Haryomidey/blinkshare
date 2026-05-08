@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Camera, Keyboard, ArrowRight, Zap, RefreshCw } from 'lucide-react';
+import { Camera, Keyboard, ArrowRight, Zap, RefreshCw, Info, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
@@ -70,7 +70,7 @@ export default function Send() {
 
         try {
             const session = await api.getReceiveSession(code);
-            if (session.status !== 'waiting') {
+            if (session.transferId) {
                 setError('That receive code is no longer available. Create a new one on the receiving device.');
                 return;
             }
@@ -89,8 +89,8 @@ export default function Send() {
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <Badge className="mb-4">Send</Badge>
-                    <h1 className="text-4xl font-bold tracking-tighter text-black">Send Files</h1>
-                    <p className="text-neutral-500 mt-2">Choose your files, then pair with the device that should receive them.</p>
+                    <h1 className="text-3xl font-bold tracking-tighter text-black sm:text-4xl">Send Files</h1>
+                    <p className="mt-2 text-sm text-neutral-500 sm:text-base">Choose your files, then pair with the device that should receive them.</p>
                     {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
                 </div>
                 {state !== 'initial' && (
@@ -161,7 +161,7 @@ export default function Send() {
                                     setPairingCode(e.target.value);
                                     setIsPaired(false);
                                 }}
-                                className="font-mono uppercase text-lg"
+                                className="font-mono text-base uppercase sm:text-lg"
                             />
                             <Button className="w-full" onClick={() => void handlePairDevice()} isLoading={isPairing}>
                                 Connect Device
@@ -169,6 +169,20 @@ export default function Send() {
                             <p className="text-xs text-center text-neutral-400 font-medium leading-relaxed">
                                 The code is only used to connect these two devices.
                             </p>
+                        </Card>
+                    )}
+
+                    {isPaired && (
+                        <Card className="border-2 border-black bg-neutral-50 p-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-sm bg-black text-white">
+                                    <CheckCircle2 className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-bold text-black">Receiver connected</p>
+                                    <p className="text-xs text-neutral-500">Both devices are paired. Choose files to continue.</p>
+                                </div>
+                            </div>
                         </Card>
                     )}
                 </div>
@@ -183,8 +197,16 @@ export default function Send() {
                     <FileDropzone onFilesAdded={handleFilesAdded} />
 
                     {!isPaired && (
-                        <div className="rounded-sm border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                            Pair with a receiving device before starting the transfer.
+                        <div className="flex gap-3 rounded-sm border border-neutral-200 bg-neutral-50 p-4">
+                            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-black text-white">
+                                <Info className="h-4 w-4" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-black">Pair a receiver first</p>
+                                <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+                                    Open Receive on the other device, then scan its QR code or enter its pairing code.
+                                </p>
+                            </div>
                         </div>
                     )}
                     

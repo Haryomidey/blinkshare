@@ -6,14 +6,27 @@ interface ConnectionStatusProps {
     status: 'connecting' | 'connected' | 'disconnected';
     deviceName?: string;
     deviceType?: 'mobile' | 'desktop';
+    label?: string;
+    message?: string;
 }
 
-export const ConnectionStatus = ({ status, deviceName = "Unknown Device", deviceType = 'desktop' }: ConnectionStatusProps) => {
+export const ConnectionStatus = ({
+    status,
+    deviceName = "Unknown Device",
+    deviceType = 'desktop',
+    label = 'Recipient',
+    message,
+}: ConnectionStatusProps) => {
+    const statusMessage = message
+        ?? (status === 'connected'
+            ? 'Receiver paired. Keep both pages open while files move.'
+            : 'Waiting for receiver to join the transfer...');
+
     return (
-        <Card className="p-10 flex flex-col items-center text-center bg-white border-2 border-black shadow-xl">
-            <div className="relative mb-8">
+        <Card className="flex flex-col items-center bg-white p-6 text-center shadow-xl border-2 border-black sm:p-8">
+            <div className="relative mb-6">
                 <div className={cn(
-                    "w-24 h-24 rounded-full border-2 flex items-center justify-center transition-all duration-500",
+                    "w-20 h-20 rounded-full border-2 flex items-center justify-center transition-all duration-500 sm:h-24 sm:w-24",
                     status === 'connected' ? "border-black bg-black" : "border-neutral-200 bg-white"
                 )}>
                     {deviceType === 'desktop' ? (
@@ -34,10 +47,10 @@ export const ConnectionStatus = ({ status, deviceName = "Unknown Device", device
                 )}
             </div>
             
-            <p className="text-[10px] uppercase font-bold tracking-[.3em] text-neutral-400 mb-2">Recipient</p>
-            <h3 className="text-2xl font-bold tracking-tight text-black">{deviceName}</h3>
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-[.3em] text-neutral-400">{label}</p>
+            <h3 className="text-xl font-bold tracking-tight text-black sm:text-2xl">{deviceName}</h3>
             <p className="text-sm text-neutral-500 mt-2">
-                {status === 'connected' ? 'Receiver paired. Keep both pages open while files move.' : 'Waiting for receiver pairing...'}
+                {statusMessage}
             </p>
         </Card>
     );

@@ -5,6 +5,7 @@ export const createReceiveSessionRouter = (controller: ReceiveSessionController)
     const router = Router();
 
     router.post('/', controller.create);
+    router.post('/:code/pair', controller.pair);
     router.get('/:code', controller.findByCode);
 
     return router;

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createDefaultSettings, createDeviceId, SETTINGS_KEY } from '@/lib/deviceIdentity.ts';
 
 export interface AppSettings {
     deviceName: string;
@@ -11,29 +12,15 @@ export interface AppSettings {
     deviceId: string;
 }
 
-const SETTINGS_KEY = 'blinkshare_settings';
-
-const createDeviceId = () => `#${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-
-const defaultSettings: AppSettings = {
-    deviceName: 'Work Laptop',
-    autoAccept: false,
-    discovery: true,
-    notifyOnComplete: true,
-    p2pOptimized: true,
-    secureSignaling: true,
-    privateMode: false,
-    deviceId: createDeviceId(),
-};
-
 const loadSettings = (): AppSettings => {
     const stored = localStorage.getItem(SETTINGS_KEY);
-    if (!stored) return defaultSettings;
+    const defaults = createDefaultSettings();
+    if (!stored) return defaults;
 
     try {
-        return { ...defaultSettings, ...JSON.parse(stored) };
+        return { ...defaults, ...JSON.parse(stored) };
     } catch {
-        return defaultSettings;
+        return defaults;
     }
 };
 
@@ -49,16 +36,24 @@ export const useAppSettings = () => {
         const handleStorage = (event: StorageEvent) => {
             if (event.key === SETTINGS_KEY) setSettings(loadSettings());
         };
+        const handleSettingsUpdated = (event: Event) => {
+            const nextSettings = (event as CustomEvent<AppSettings>).detail;
+            if (nextSettings) setSettings(nextSettings);
+        };
 
         window.addEventListener('storage', handleStorage);
-        return () => window.removeEventListener('storage', handleStorage);
+        window.addEventListener('blinkshare:settings-updated', handleSettingsUpdated);
+        return () => {
+            window.removeEventListener('storage', handleStorage);
+            window.removeEventListener('blinkshare:settings-updated', handleSettingsUpdated);
+        };
     }, []);
 
     const actions = useMemo(() => ({
         updateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
             setSettings((current) => ({ ...current, [key]: value }));
         },
-        clearSettings: () => setSettings(defaultSettings),
+        clearSettings: () => setSettings(createDefaultSettings()),
         resetDeviceId: () => setSettings((current) => ({ ...current, deviceId: createDeviceId() })),
     }), []);
 

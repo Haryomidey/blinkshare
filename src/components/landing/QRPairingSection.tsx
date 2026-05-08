@@ -5,13 +5,13 @@ import { Card } from '@/components/ui/Card.tsx';
 export const QRPairingSection = () => {
     return (
         <section className="py-32 px-4 bg-neutral-50 border-y border-neutral-100">
-            <div className="max-w-6xl mx-auto grid md:grid-cols-2 items-center gap-16">
+            <div className="max-w-6xl mx-auto grid md:grid-cols-2 items-center gap-10 md:gap-16">
                 <div>
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-neutral-400 mb-4">Seamless Connection</p>
-                    <h2 className="text-5xl font-bold tracking-tight text-black mb-8 leading-[1.1]">
+                    <h2 className="mb-5 text-3xl font-bold leading-[1.15] tracking-tight text-black sm:text-4xl lg:mb-8 lg:text-5xl">
                         Connect devices with a simple scan.
                     </h2>
-                    <p className="text-lg text-neutral-500 mb-10 leading-relaxed max-w-md">
+                    <p className="mb-8 max-w-md text-sm leading-relaxed text-neutral-500 sm:text-base lg:mb-10 lg:text-lg">
                         Scan the unique session QR code from any secondary device to establish a secure, encrypted direct p2p handshake. 
                     </p>
                     

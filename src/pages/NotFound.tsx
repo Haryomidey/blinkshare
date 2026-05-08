@@ -8,10 +8,10 @@ export default function NotFound() {
             <div className="relative mb-8">
                 <Box size={120} strokeWidth={1} className="text-neutral-100" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-6xl font-bold tracking-tighter">404</span>
+                    <span className="text-5xl font-bold tracking-tighter sm:text-6xl">404</span>
                 </div>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight mb-2 uppercase">Node Not Found</h1>
+            <h1 className="mb-2 text-xl font-bold uppercase tracking-tight sm:text-2xl">Node Not Found</h1>
             <p className="text-neutral-500 max-w-xs mb-12">
                 The direct link you are looking for has expired or never existed.
             </p>

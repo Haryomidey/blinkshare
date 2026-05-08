@@ -2,9 +2,9 @@ import { WebSocketServer, type WebSocket } from 'ws';
 import type { Server } from 'node:http';
 
 export type RealtimeEvent =
-    | { type: 'transfer:list'; payload: unknown }
+    | { type: 'transfer:list'; ownerId?: string; payload: unknown }
     | { type: 'transfer:updated'; payload: unknown }
-    | { type: 'stats:updated'; payload: unknown }
+    | { type: 'stats:updated'; ownerId?: string; payload: unknown }
     | { type: 'receive-session:updated'; payload: unknown };
 
 type ClientMessage =

@@ -18,7 +18,7 @@ export default function Landing() {
                     <div className="w-8 h-8 bg-black rounded-sm flex items-center justify-center">
                         <Zap size={16} className="text-white bg-black" fill="white" />
                     </div>
-                    <span className="font-bold text-xl tracking-tight">BlinkShare</span>
+                    <span className="text-lg font-bold tracking-tight sm:text-xl">BlinkShare</span>
                 </div>
                 
                 {/* Desktop Nav */}
@@ -50,20 +50,20 @@ export default function Landing() {
                         <a 
                             href="#features" 
                             onClick={() => setIsMenuOpen(false)}
-                            className="text-2xl font-bold uppercase tracking-tighter hover:text-neutral-500 transition-colors text-black"
+                            className="text-xl font-bold uppercase tracking-tighter text-black transition-colors hover:text-neutral-500 sm:text-2xl"
                         >
                             Features
                         </a>
                         <a 
                             href="#security" 
                             onClick={() => setIsMenuOpen(false)}
-                            className="text-2xl font-bold uppercase tracking-tighter hover:text-neutral-500 transition-colors text-black"
+                            className="text-xl font-bold uppercase tracking-tighter text-black transition-colors hover:text-neutral-500 sm:text-2xl"
                         >
                             Security
                         </a>
                         <a 
                             href="/app" 
-                            className="text-2xl font-bold uppercase tracking-tighter bg-black text-white px-10 py-5 rounded-sm w-full text-center"
+                            className="w-full rounded-sm bg-black px-8 py-4 text-center text-xl font-bold uppercase tracking-tighter text-white sm:px-10 sm:py-5 sm:text-2xl"
                         >
                             Launch Dashboard
                         </a>

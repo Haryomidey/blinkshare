@@ -10,6 +10,7 @@ export interface CreateTransferInput {
     sender?: string;
     receiver?: string;
     pairingCode?: string;
+    ownerId: string;
 }
 
 export class TransferService {
@@ -21,24 +22,29 @@ export class TransferService {
         private readonly realtime: RealtimeHub
     ) {}
 
-    list() {
-        return this.transfers.list();
+    list(ownerId?: string) {
+        return this.transfers.list(ownerId);
     }
 
     findById(id: string) {
         return this.transfers.findById(id);
     }
 
-    stats(): Promise<TransferStats> {
-        return this.transfers.stats();
+    stats(ownerId?: string): Promise<TransferStats> {
+        return this.transfers.stats(ownerId);
     }
 
-    async clear() {
-        this.activeTimers.forEach((timer) => clearInterval(timer));
-        this.activeTimers.clear();
-        await this.transfers.clear();
-        this.realtime.broadcast({ type: 'transfer:list', payload: [] });
-        this.realtime.broadcast({ type: 'stats:updated', payload: await this.transfers.stats() });
+    async clear(ownerId?: string) {
+        const transfers = await this.transfers.list(ownerId);
+        transfers.forEach((transfer) => {
+            const timer = this.activeTimers.get(transfer.id);
+            if (timer) clearInterval(timer);
+            this.activeTimers.delete(transfer.id);
+        });
+
+        await this.transfers.clear(ownerId);
+        this.realtime.broadcast({ type: 'transfer:list', ownerId, payload: await this.transfers.list(ownerId) });
+        this.realtime.broadcast({ type: 'stats:updated', ownerId, payload: await this.transfers.stats(ownerId) });
     }
 
     async create(input: CreateTransferInput) {
@@ -62,7 +68,7 @@ export class TransferService {
             throw new Error('That receive code was not found. Check the receiving device and try again.');
         }
 
-        if (pairedSession.status !== 'waiting') {
+        if (pairedSession.transferId || (pairedSession.status !== 'waiting' && pairedSession.status !== 'paired')) {
             throw new Error('That receive code is no longer available. Create a new receive session and try again.');
         }
 
@@ -74,6 +80,9 @@ export class TransferService {
             type: input.type ?? 'sent',
             sender: input.sender ?? 'This device',
             receiver: pairedSession.deviceName,
+            ownerIds: [...new Set([input.ownerId, pairedSession.ownerId].filter(Boolean))],
+            senderOwnerId: input.ownerId,
+            receiverOwnerId: pairedSession.ownerId,
             files,
             progress: 0,
             bytesTransferred: 0,
@@ -106,6 +115,58 @@ export class TransferService {
         return started;
     }
 
+    async addFiles(id: string, input: AddTransferFilesInput) {
+        const transfer = await this.transfers.findById(id);
+        if (!transfer || !transfer.ownerIds.includes(input.ownerId)) return null;
+
+        const files: TransferFile[] = input.files.map((file) => ({
+            id: createId('FILE'),
+            name: file.name,
+            size: file.size,
+            progress: 0,
+            status: 'waiting',
+        }));
+        const size = transfer.size + files.reduce((total, file) => total + file.size, 0);
+        const progress = Math.min(100, (transfer.bytesTransferred / Math.max(size, 1)) * 100);
+        const updated = await this.transfers.update(id, {
+            files: [...transfer.files, ...files],
+            size,
+            progress,
+            status: 'transferring',
+            completedAt: undefined,
+        });
+
+        if (updated) await this.broadcastState(updated);
+        return updated ? { transfer: updated, files } : null;
+    }
+
+    async removeFile(id: string, fileId: string, input: RemoveTransferFileInput) {
+        const transfer = await this.transfers.findById(id);
+        if (!transfer || !transfer.ownerIds.includes(input.ownerId)) return null;
+        if (!transfer.files.some((file) => file.id === fileId)) return null;
+
+        const files = transfer.files.filter((file) => file.id !== fileId);
+        const size = files.reduce((total, file) => total + file.size, 0);
+        const bytesTransferred = Math.round(
+            files.reduce((total, file) => total + (file.progress / 100) * file.size, 0)
+        );
+        const isCompleted = files.length > 0 && files.every((file) => file.progress >= 100 || file.status === 'completed');
+        const progress = size > 0 ? Math.min(100, (bytesTransferred / size) * 100) : 0;
+        const updated = await this.transfers.update(id, {
+            files,
+            name: files.length === 1 ? files[0].name : `${files.length} files`,
+            size,
+            bytesTransferred,
+            progress,
+            status: files.length === 0 ? 'cancelled' : isCompleted ? 'completed' : 'transferring',
+            speed: files.length === 0 || isCompleted ? 0 : transfer.speed,
+            completedAt: isCompleted ? new Date().toISOString() : undefined,
+        });
+
+        if (updated) await this.broadcastState(updated);
+        return updated;
+    }
+
     async updateProgress(id: string, input: UpdateTransferProgressInput) {
         const transfer = await this.transfers.findById(id);
         if (!transfer) return null;
@@ -113,16 +174,27 @@ export class TransferService {
         const files = input.files
             ? transfer.files.map((file) => {
                 const patch = input.files?.find((item) => item.id === file.id);
-                return patch ? { ...file, progress: patch.progress, status: patch.status } : file;
+                if (!patch) return file;
+
+                const progress = Math.max(file.progress, patch.progress);
+                return {
+                    ...file,
+                    progress,
+                    status: file.status === 'completed' || progress >= 100 ? 'completed' : patch.status,
+                };
             })
             : transfer.files;
+        const completedBytes = Math.round(files.reduce((total, file) => total + (file.progress / 100) * file.size, 0));
+        const bytesTransferred = Math.max(transfer.bytesTransferred, input.bytesTransferred, completedBytes);
+        const progress = Math.min(100, (bytesTransferred / Math.max(transfer.size, 1)) * 100);
+        const isCompleted = files.every((file) => file.status === 'completed' || file.progress >= 100);
         const updated = await this.transfers.update(id, {
-            bytesTransferred: input.bytesTransferred,
-            progress: input.progress,
+            bytesTransferred,
+            progress,
             speed: input.speed ?? transfer.speed,
             files,
-            status: input.status ?? transfer.status,
-            completedAt: input.status === 'completed' ? new Date().toISOString() : transfer.completedAt,
+            status: isCompleted ? 'completed' : input.status ?? transfer.status,
+            completedAt: isCompleted ? new Date().toISOString() : transfer.completedAt,
         });
 
         if (updated) await this.broadcastState(updated);
@@ -186,8 +258,10 @@ export class TransferService {
 
     private async broadcastState(transfer: Transfer) {
         this.realtime.broadcast({ type: 'transfer:updated', payload: transfer });
-        this.realtime.broadcast({ type: 'transfer:list', payload: await this.transfers.list() });
-        this.realtime.broadcast({ type: 'stats:updated', payload: await this.transfers.stats() });
+        await Promise.all(transfer.ownerIds.map(async (ownerId) => {
+            this.realtime.broadcast({ type: 'transfer:list', ownerId, payload: await this.transfers.list(ownerId) });
+            this.realtime.broadcast({ type: 'stats:updated', ownerId, payload: await this.transfers.stats(ownerId) });
+        }));
     }
 }
 
@@ -197,4 +271,13 @@ export interface UpdateTransferProgressInput {
     speed?: number;
     files?: Array<{ id: string; progress: number; status: TransferFile['status'] }>;
     status?: Transfer['status'];
+}
+
+export interface AddTransferFilesInput {
+    ownerId: string;
+    files: Array<{ name: string; size: number }>;
+}
+
+export interface RemoveTransferFileInput {
+    ownerId: string;
 }

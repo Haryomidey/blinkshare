@@ -70,7 +70,7 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
     return (
         <div className="space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 border-b border-neutral-100">
-                <h2 className="text-xl font-bold tracking-tight text-black">Recent Transfers</h2>
+                <h2 className="text-lg font-bold tracking-tight text-black sm:text-xl">Recent Transfers</h2>
                 <div className="flex w-full flex-col gap-2 sm:flex-row md:w-auto">
                     <div className="flex min-w-0 flex-1 items-center gap-2 bg-neutral-50 border border-neutral-200 h-10 px-3 rounded-sm sm:h-9 sm:min-w-72 md:min-w-80 lg:min-w-96 py-3">
                         <Search className="w-4 h-4 text-neutral-400" />

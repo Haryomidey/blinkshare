@@ -94,7 +94,7 @@ export const Header = () => {
                                         <X size={14} />
                                     </button>
                                 </div>
-                                <div className="max-h-[400px] overflow-y-auto">
+                                <div className="max-h-[min(280px,calc(100vh-9rem))] overflow-y-auto custom-scrollbar">
                                     {notifications.length === 0 ? (
                                         <div className="p-8 text-center">
                                             <p className="text-sm font-bold text-black">No notifications yet</p>

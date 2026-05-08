@@ -18,6 +18,9 @@ export interface Transfer {
     type: TransferType;
     sender?: string;
     receiver?: string;
+    ownerIds: string[];
+    senderOwnerId?: string;
+    receiverOwnerId?: string;
     files: TransferFile[];
     progress: number;
     bytesTransferred: number;
@@ -31,6 +34,7 @@ export interface ReceiveSession {
     id: string;
     code: string;
     deviceName: string;
+    ownerId: string;
     status: ReceiveSessionStatus;
     transferId?: string;
     createdAt: string;

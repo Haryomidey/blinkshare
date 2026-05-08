@@ -26,10 +26,10 @@ export const SecuritySection = () => {
 
                     <div>
                         <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-neutral-400 mb-4">Security Protocol</p>
-                        <h2 className="text-4xl font-bold tracking-tight text-black mb-8 leading-tight">
+                        <h2 className="mb-5 text-3xl font-bold leading-tight tracking-tight text-black sm:text-4xl lg:mb-8">
                             Total privacy by design, not by policy.
                         </h2>
-                        <p className="text-lg text-neutral-500 mb-8 leading-relaxed">
+                        <p className="mb-6 text-sm leading-relaxed text-neutral-500 sm:text-base lg:mb-8 lg:text-lg">
                             Unlike traditional cloud transfers, your data is never stored on our servers. Even the signaling server only facilitates the initial handshake—once connected, your files flow directly through a secure tunnel between your browsers.
                         </p>
                         <p className="text-sm font-medium text-black border-l-2 border-black pl-4 py-2">

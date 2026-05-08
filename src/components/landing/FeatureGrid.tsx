@@ -39,7 +39,7 @@ export const FeatureGrid = () => {
             <div className="max-w-6xl mx-auto">
                 <div className="mb-20 text-center max-w-2xl mx-auto">
                     <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-neutral-400 mb-4">Core Principles</p>
-                    <h2 className="text-4xl font-bold tracking-tight text-black">Built for power users who value their data.</h2>
+                    <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">Built for power users who value their data.</h2>
                 </div>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-12">
@@ -48,7 +48,7 @@ export const FeatureGrid = () => {
                             <div className="w-12 h-12 bg-black rounded-sm flex items-center justify-center mb-6 transition-transform group-hover:scale-110">
                                 <feature.icon className="text-white w-6 h-6" />
                             </div>
-                            <h3 className="text-lg font-bold text-black mb-3">{feature.title}</h3>
+                            <h3 className="mb-2 text-base font-bold text-black sm:mb-3 sm:text-lg">{feature.title}</h3>
                             <p className="text-sm text-neutral-500 leading-relaxed">
                                 {feature.description}
                             </p>

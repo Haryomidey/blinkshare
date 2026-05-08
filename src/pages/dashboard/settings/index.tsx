@@ -1,4 +1,5 @@
 import { User, Smartphone, Shield, Zap, History, RotateCcw, Globe, Fingerprint } from 'lucide-react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
@@ -10,9 +11,42 @@ import { api } from '@/services/api.ts';
 
 export default function Settings() {
     const { settings, updateSetting, clearSettings, resetDeviceId } = useAppSettings();
+    const [maintenanceMessage, setMaintenanceMessage] = useState('');
+    const [busyAction, setBusyAction] = useState<string | null>(null);
+
     const clearHistory = async () => {
-        localStorage.removeItem('blinkshare_transfer_history');
-        await api.clearTransfers().catch(() => undefined);
+        setBusyAction('history');
+        try {
+            localStorage.removeItem('blinkshare_transfer_history');
+            await api.clearTransfers();
+            setMaintenanceMessage('History cleared for this device.');
+        } catch {
+            setMaintenanceMessage('Could not clear history. Make sure the backend is running.');
+        } finally {
+            setBusyAction(null);
+        }
+    };
+
+    const handleResetDeviceId = () => {
+        resetDeviceId();
+        setMaintenanceMessage('Device ID reset.');
+    };
+
+    const handlePrivateMode = async () => {
+        const nextValue = !settings.privateMode;
+        updateSetting('privateMode', nextValue);
+        if (nextValue) {
+            updateSetting('notifyOnComplete', false);
+            setMaintenanceMessage('Private mode enabled. Notifications are off.');
+            return;
+        }
+
+        setMaintenanceMessage('Private mode disabled.');
+    };
+
+    const handleResetSettings = () => {
+        clearSettings();
+        setMaintenanceMessage('Settings reset.');
     };
 
     return (
@@ -25,8 +59,8 @@ export default function Settings() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
                         <Badge className="mb-4 bg-black text-white hover:bg-black border-none px-3">Settings</Badge>
-                        <h1 className="text-5xl font-bold tracking-tight text-neutral-900 mb-4">App Preferences</h1>
-                        <p className="text-lg text-neutral-500 max-w-xl">
+                        <h1 className="mb-4 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl lg:text-5xl">App Preferences</h1>
+                        <p className="max-w-xl text-sm text-neutral-500 sm:text-base lg:text-lg">
                             Manage how this device appears to others and how BlinkShare handles incoming transfers.
                         </p>
                     </div>
@@ -53,7 +87,7 @@ export default function Settings() {
                                 <User className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-black tracking-tight">Device Name</h2>
+                                <h2 className="text-lg font-bold tracking-tight text-black sm:text-xl">Device Name</h2>
                                 <p className="text-sm text-neutral-500">This is the name people see when pairing with you.</p>
                             </div>
                         </div>
@@ -66,7 +100,7 @@ export default function Settings() {
                                         value={settings.deviceName} 
                                         onChange={(e) => updateSetting('deviceName', e.target.value)}
                                         placeholder="E.G. My MacBook"
-                                        className="text-lg py-6"
+                                        className="py-4 text-base sm:py-6 sm:text-lg"
                                     />
                                     <p className="text-xs text-neutral-400 leading-relaxed italic">
                                         Use a name that is easy to recognize on your own devices.
@@ -89,7 +123,7 @@ export default function Settings() {
                                 <Zap className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-black tracking-tight">Transfer Preferences</h2>
+                                <h2 className="text-lg font-bold tracking-tight text-black sm:text-xl">Transfer Preferences</h2>
                                 <p className="text-sm text-neutral-500">Choose how new transfer requests should behave.</p>
                             </div>
                         </div>
@@ -148,7 +182,7 @@ export default function Settings() {
                                 <Shield className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-black tracking-tight">Security & Network</h2>
+                                <h2 className="text-lg font-bold tracking-tight text-black sm:text-xl">Security & Network</h2>
                                 <p className="text-sm text-neutral-500">Control how BlinkShare connects during transfers.</p>
                             </div>
                         </div>
@@ -183,19 +217,33 @@ export default function Settings() {
                     <Card className="p-8 bg-neutral-900 text-white border-none shadow-2xl">
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500 mb-6">Maintenance</h4>
                         <div className="space-y-3">
-                            <Button variant="ghost" onClick={clearHistory} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
+                            {maintenanceMessage && (
+                                <div className="rounded-sm border border-white/10 bg-white/5 p-3 text-xs font-medium leading-relaxed text-neutral-300">
+                                    {maintenanceMessage}
+                                </div>
+                            )}
+                            <Button
+                                variant="ghost"
+                                onClick={() => void clearHistory()}
+                                isLoading={busyAction === 'history'}
+                                className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6"
+                            >
                                 <History className="w-4 h-4 mr-4 text-neutral-500" />
                                 Clear History
                             </Button>
-                            <Button variant="ghost" onClick={resetDeviceId} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
+                            <Button variant="ghost" onClick={handleResetDeviceId} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
                                 <RotateCcw className="w-4 h-4 mr-4 text-neutral-500" />
                                 Reset Device ID
                             </Button>
-                            <Button variant="ghost" onClick={() => updateSetting('privateMode', !settings.privateMode)} className="w-full justify-start text-xs font-bold text-red-400 hover:bg-red-900/20 hover:text-red-400 uppercase tracking-widest py-6">
+                            <Button
+                                variant="ghost"
+                                onClick={() => void handlePrivateMode()}
+                                className="w-full justify-start text-xs font-bold text-red-400 hover:bg-red-900/20 hover:text-red-400 uppercase tracking-widest py-6"
+                            >
                                 <Shield className="w-4 h-4 mr-4" />
-                                {settings.privateMode ? 'Disable Private Mode' : 'Private Mode'}
+                                {settings.privateMode ? 'Disable Private Mode' : 'Enable Private Mode'}
                             </Button>
-                            <Button variant="ghost" onClick={clearSettings} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
+                            <Button variant="ghost" onClick={handleResetSettings} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
                                 <RotateCcw className="w-4 h-4 mr-4 text-neutral-500" />
                                 Reset Settings
                             </Button>
@@ -207,7 +255,7 @@ export default function Settings() {
                             <Smartphone className="w-8 h-8 text-neutral-300 mx-auto" />
                             <div>
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1">Current Version</p>
-                                <p className="text-lg font-mono font-bold text-black tracking-tight">BlinkShare 1.2.4</p>
+                                <p className="font-mono text-base font-bold tracking-tight text-black sm:text-lg">BlinkShare 1.2.4</p>
                             </div>
                             <div className="pt-4">
                                 <Badge variant="outline" className="bg-white border-neutral-200">Up to date</Badge>

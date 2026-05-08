@@ -11,6 +11,8 @@ export const createTransferRouter = (controller: TransferController) => {
     router.post('/', controller.create);
     router.post('/:id/start', controller.start);
     router.post('/:id/cancel', controller.cancel);
+    router.post('/:id/files', controller.addFiles);
+    router.delete('/:id/files/:fileId', controller.removeFile);
     router.patch('/:id/progress', controller.updateProgress);
 
     return router;

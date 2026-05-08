@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button.tsx';
 export const CTASection = () => {
     return (
         <section className="py-32 px-4 bg-white border-t border-neutral-100">
-            <div className="max-w-4xl mx-auto p-16 bg-black rounded-sm text-center relative overflow-hidden">
+            <div className="relative mx-auto max-w-4xl overflow-hidden rounded-sm bg-black p-6 text-center sm:p-10 lg:p-16">
                 {/* Background Patterns */}
                 <div className="absolute inset-0 opacity-10 pointer-events-none">
                     <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
@@ -13,10 +13,10 @@ export const CTASection = () => {
                 
                 <div className="relative z-10">
                     <Zap className="w-12 h-12 text-white mx-auto mb-8 animate-bounce" fill="white" />
-                    <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-white mb-8">
+                    <h2 className="mb-5 text-3xl font-bold tracking-tighter text-white sm:text-5xl md:text-6xl lg:mb-8">
                         READY TO SHARE?
                     </h2>
-                    <p className="text-xl text-neutral-400 max-w-xl mx-auto mb-12">
+                    <p className="mx-auto mb-8 max-w-xl text-sm text-neutral-400 sm:text-base lg:mb-12 lg:text-xl">
                         Experience the direct browser-to-browser transfer technology. Start your session now.
                     </p>
                     <div className="flex flex-row flex-nowrap items-center justify-center gap-3 sm:gap-6">

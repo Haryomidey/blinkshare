@@ -2,25 +2,29 @@ import type { Transfer, TransferStats } from '../types/transfer.js';
 import { TransferModel } from '../models/TransferModel.js';
 
 export interface TransferRepository {
-    list(): Promise<Transfer[]>;
+    list(ownerId?: string): Promise<Transfer[]>;
     findById(id: string): Promise<Transfer | null>;
     create(transfer: Transfer): Promise<Transfer>;
     update(id: string, patch: Partial<Transfer>): Promise<Transfer | null>;
-    clear(): Promise<void>;
-    stats(): Promise<TransferStats>;
+    clear(ownerId?: string): Promise<void>;
+    stats(ownerId?: string): Promise<TransferStats>;
 }
 
 const sortNewest = (items: Transfer[]) =>
     [...items].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
+const transferForOwner = (transfer: Transfer, ownerId?: string): Transfer => ({
+    ...transfer,
+    type: ownerId && transfer.receiverOwnerId === ownerId ? 'received' : 'sent',
+});
+
 const calculateStats = (items: Transfer[]): TransferStats => {
     const completed = items.filter((transfer) => transfer.status === 'completed');
     const speedSamples = completed.map((transfer) => transfer.speed).filter((speed) => speed > 0);
-    const pairedTransfers = items.filter((transfer) => Boolean(transfer.receiver));
 
     return {
         totalSent: items.filter((transfer) => transfer.type === 'sent').length,
-        totalReceived: items.filter((transfer) => transfer.type === 'received').length + pairedTransfers.length,
+        totalReceived: items.filter((transfer) => transfer.type === 'received').length,
         totalTransferred: completed.reduce((total, transfer) => total + transfer.size, 0),
         averageSpeed: speedSamples.length
             ? Math.round(speedSamples.reduce((total, speed) => total + speed, 0) / speedSamples.length)
@@ -31,8 +35,13 @@ const calculateStats = (items: Transfer[]): TransferStats => {
 export class MemoryTransferRepository implements TransferRepository {
     private transfers = new Map<string, Transfer>();
 
-    async list() {
-        return sortNewest([...this.transfers.values()]);
+    async list(ownerId?: string) {
+        if (!ownerId) return [];
+
+        const transfers = [...this.transfers.values()];
+        const scopedTransfers = transfers.filter((transfer) => transfer.ownerIds?.includes(ownerId));
+
+        return sortNewest(scopedTransfers.map((transfer) => transferForOwner(transfer, ownerId)));
     }
 
     async findById(id: string) {
@@ -53,18 +62,35 @@ export class MemoryTransferRepository implements TransferRepository {
         return updated;
     }
 
-    async clear() {
-        this.transfers.clear();
+    async clear(ownerId?: string) {
+        if (!ownerId) {
+            return;
+        }
+
+        [...this.transfers.values()]
+            .filter((transfer) => transfer.ownerIds?.includes(ownerId))
+            .forEach((transfer) => {
+                const ownerIds = transfer.ownerIds.filter((id) => id !== ownerId);
+                if (ownerIds.length === 0) {
+                    this.transfers.delete(transfer.id);
+                    return;
+                }
+
+                this.transfers.set(transfer.id, { ...transfer, ownerIds, updatedAt: new Date().toISOString() });
+            });
     }
 
-    async stats() {
-        return calculateStats([...this.transfers.values()]);
+    async stats(ownerId?: string) {
+        return calculateStats(await this.list(ownerId));
     }
 }
 
 export class MongoTransferRepository implements TransferRepository {
-    async list() {
-        return TransferModel.find().sort({ createdAt: -1 }).lean<Transfer[]>();
+    async list(ownerId?: string) {
+        if (!ownerId) return [];
+
+        const transfers = await TransferModel.find({ ownerIds: ownerId }).sort({ createdAt: -1 }).lean<Transfer[]>();
+        return transfers.map((transfer) => transferForOwner(transfer, ownerId));
     }
 
     async findById(id: string) {
@@ -84,11 +110,17 @@ export class MongoTransferRepository implements TransferRepository {
         ).lean<Transfer | null>();
     }
 
-    async clear() {
-        await TransferModel.deleteMany({});
+    async clear(ownerId?: string) {
+        if (!ownerId) return;
+
+        await TransferModel.updateMany(
+            { ownerIds: ownerId },
+            { $pull: { ownerIds: ownerId }, updatedAt: new Date().toISOString() }
+        );
+        await TransferModel.deleteMany({ ownerIds: { $size: 0 } });
     }
 
-    async stats() {
-        return calculateStats(await this.list());
+    async stats(ownerId?: string) {
+        return calculateStats(await this.list(ownerId));
     }
 }

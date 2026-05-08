@@ -12,7 +12,7 @@ export class ReceiveSessionController {
             return;
         }
 
-        response.status(201).json(await this.sessions.create(parsed.data.deviceName));
+        response.status(201).json(await this.sessions.create(parsed.data.deviceName, parsed.data.ownerId));
     };
 
     findByCode = async (request: Request, response: Response) => {
@@ -23,5 +23,16 @@ export class ReceiveSessionController {
         }
 
         response.json(session);
+    };
+
+    pair = async (request: Request, response: Response) => {
+        try {
+            const session = await this.sessions.pair(String(request.params.code));
+            response.json(session);
+        } catch (error) {
+            response.status(400).json({
+                message: error instanceof Error ? error.message : 'Unable to pair receive session',
+            });
+        }
     };
 }

@@ -1,4 +1,4 @@
-import { Send, Download, History, Zap, Shield, ArrowRight, Share2, Activity, Cpu } from 'lucide-react';
+import { Send, Download, History, Zap, Shield, ArrowRight, Share2, Cpu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
@@ -16,30 +16,24 @@ export default function Dashboard() {
             {/* Dashboard Header */}
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-5xl font-bold tracking-tight text-neutral-900 mb-2">Dashboard</h1>
-                    <p className="text-lg text-neutral-500 font-light max-w-xl">
+                    <h1 className="mb-2 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl lg:text-5xl">Dashboard</h1>
+                    <p className="max-w-xl text-sm font-light text-neutral-500 sm:text-base lg:text-lg">
                         Send or receive files from nearby devices. Everything is ready when you are.
                     </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Card className="px-4 py-2 bg-neutral-50 border-neutral-100 flex items-center gap-3">
-                        <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Ready to transfer</span>
-                    </Card>
                 </div>
             </header>
 
             {/* Quick Actions */}
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
-                    <div className="p-12 bg-neutral-900 rounded-sm border border-black relative overflow-hidden group shadow-2xl">
+                    <div className="group relative overflow-hidden rounded-sm border border-black bg-neutral-900 p-6 shadow-2xl sm:p-10 lg:p-12">
                         <div className="absolute top-0 right-0 p-16 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-1000 group-hover:rotate-12">
                             <Zap size={240} fill="white" className="text-white" />
                         </div>
                         <div className="relative z-10">
                             <Badge className="mb-6 bg-white/10 text-white border-white/20 hover:bg-white/20 transition-colors cursor-default">Direct transfer</Badge>
-                            <h2 className="text-5xl font-bold tracking-tight text-white mb-6 leading-tight">Start a new<br />file transfer.</h2>
-                            <p className="text-xl text-neutral-400 max-w-md mb-12 leading-relaxed font-light">
+                            <h2 className="mb-4 text-3xl font-bold tracking-tight text-white sm:mb-6 sm:text-4xl lg:text-5xl leading-tight">Start a new<br />file transfer.</h2>
+                            <p className="mb-8 max-w-md text-sm font-light leading-relaxed text-neutral-400 sm:text-base lg:mb-12 lg:text-xl">
                                 Pick files, pair with another device, and move them without uploading to cloud storage.
                             </p>
                             <div className="flex flex-nowrap gap-3 sm:gap-4">
@@ -60,7 +54,7 @@ export default function Dashboard() {
                 </div>
 
                 <div className="space-y-8">
-                    <Card className="p-10 flex flex-col items-start justify-between bg-white border-neutral-100 shadow-sm hover:shadow-md transition-all">
+                    <Card className="flex flex-col items-start justify-between border-neutral-100 bg-white p-6 shadow-sm transition-all hover:shadow-md sm:p-8 lg:p-10">
                         <div>
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-3 bg-neutral-900 rounded-full">
@@ -68,8 +62,8 @@ export default function Dashboard() {
                                 </div>
                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Privacy</span>
                             </div>
-                            <h3 className="text-2xl font-bold tracking-tight text-black mb-4">Files stay between devices</h3>
-                            <p className="text-base text-neutral-500 leading-relaxed font-light">
+                            <h3 className="mb-3 text-xl font-bold tracking-tight text-black sm:mb-4 sm:text-2xl">Files stay between devices</h3>
+                            <p className="text-sm font-light leading-relaxed text-neutral-500 sm:text-base">
                                 BlinkShare helps devices connect directly, so your files are not stored on our servers.
                             </p>
                         </div>
@@ -105,7 +99,7 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2">{stat.label}</p>
-                                    <p className="text-3xl font-bold tracking-tighter text-black font-mono leading-none">
+                                    <p className="font-mono text-2xl font-bold leading-none tracking-tighter text-black sm:text-3xl">
                                         {stat.value}
                                     </p>
                                 </div>

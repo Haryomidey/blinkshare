@@ -22,5 +22,11 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "blink-prev",
+    "backend",
+    "dist",
+    "node_modules"
+  ]
 }

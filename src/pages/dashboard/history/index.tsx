@@ -27,8 +27,8 @@ export default function HistoryPage() {
         <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <header>
                 <Badge className="mb-4">History</Badge>
-                <h1 className="text-4xl font-bold tracking-tighter text-black">Transfer History</h1>
-                <p className="text-neutral-500 mt-2">A record of files sent and received on this device.</p>
+                <h1 className="text-3xl font-bold tracking-tighter text-black sm:text-4xl">Transfer History</h1>
+                <p className="mt-2 text-sm text-neutral-500 sm:text-base">A record of files sent and received on this device.</p>
             </header>
 
             {error && (
@@ -56,15 +56,15 @@ export default function HistoryPage() {
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
                         <div className="p-6 border border-neutral-100 rounded-sm sm:p-8">
                             <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-300 mb-2">Total Shares</p>
-                            <p className="text-3xl font-bold text-black font-mono">{stats.totalSent + stats.totalReceived}</p>
+                            <p className="font-mono text-2xl font-bold text-black sm:text-3xl">{stats.totalSent + stats.totalReceived}</p>
                         </div>
                         <div className="p-6 border border-neutral-100 rounded-sm sm:p-8">
                             <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-300 mb-2">Volume</p>
-                            <p className="text-3xl font-bold text-black font-mono">{formatFileSize(stats.totalTransferred)}</p>
+                            <p className="font-mono text-2xl font-bold text-black sm:text-3xl">{formatFileSize(stats.totalTransferred)}</p>
                         </div>
                         <div className="p-6 border border-neutral-100 rounded-sm sm:p-8">
                             <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-300 mb-2">Avg. Speed</p>
-                            <p className="text-3xl font-bold text-black font-mono">{formatSpeed(stats.averageSpeed)}</p>
+                            <p className="font-mono text-2xl font-bold text-black sm:text-3xl">{formatSpeed(stats.averageSpeed)}</p>
                         </div>
                     </div>
 
