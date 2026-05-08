@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { User, Smartphone, Shield, Zap, History, RotateCcw, Ghost, Globe, Fingerprint } from 'lucide-react';
+import { useState } from 'react';
+import { User, Smartphone, Shield, Zap, History, RotateCcw, Globe, Fingerprint } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Input } from '@/components/ui/Input.tsx';
@@ -9,7 +9,7 @@ import { motion } from 'motion/react';
 
 export default function Settings() {
     const [settings, setSettings] = useState({
-        deviceName: 'BlinkShare-Workstation-Pro',
+        deviceName: 'Work Laptop',
         autoAccept: false,
         discovery: true,
         notifyOnComplete: true,
@@ -30,10 +30,10 @@ export default function Settings() {
             >
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <Badge className="mb-4 bg-black text-white hover:bg-black border-none px-3">Preference Center</Badge>
-                        <h1 className="text-5xl font-bold tracking-tight text-neutral-900 mb-4">Digital Sovereignty</h1>
+                        <Badge className="mb-4 bg-black text-white hover:bg-black border-none px-3">Settings</Badge>
+                        <h1 className="text-5xl font-bold tracking-tight text-neutral-900 mb-4">App Preferences</h1>
                         <p className="text-lg text-neutral-500 max-w-xl">
-                            Tailor your BlinkShare experience. Control how your device presents itself and how it interacts with the physical world nearby.
+                            Manage how this device appears to others and how BlinkShare handles incoming transfers.
                         </p>
                     </div>
                     <div className="flex items-center gap-3 bg-neutral-50 p-4 rounded-sm border border-neutral-100">
@@ -41,8 +41,8 @@ export default function Settings() {
                             <Fingerprint className="w-6 h-6 text-neutral-800" />
                         </div>
                         <div className="text-left">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Secure Node</p>
-                            <p className="text-sm font-mono font-bold text-black">#NODE-8x221P</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Device ID</p>
+                            <p className="text-sm font-mono font-bold text-black">#8X221P</p>
                         </div>
                     </div>
                 </div>
@@ -59,8 +59,8 @@ export default function Settings() {
                                 <User className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-black tracking-tight">Identity & Aura</h2>
-                                <p className="text-sm text-neutral-500">How you appear to others in the local space.</p>
+                                <h2 className="text-xl font-bold text-black tracking-tight">Device Name</h2>
+                                <p className="text-sm text-neutral-500">This is the name people see when pairing with you.</p>
                             </div>
                         </div>
 
@@ -68,20 +68,20 @@ export default function Settings() {
                             <div className="grid md:grid-cols-2 gap-10 items-start">
                                 <div className="space-y-4">
                                     <Input 
-                                        label="Surface Name" 
+                                        label="Display Name" 
                                         value={settings.deviceName} 
                                         onChange={(e) => updateSetting('deviceName', e.target.value)}
                                         placeholder="E.G. My MacBook"
                                         className="text-lg py-6"
                                     />
                                     <p className="text-xs text-neutral-400 leading-relaxed italic">
-                                        This name is broadcast during the handshake phase. Make it recognizable but minimal.
+                                        Use a name that is easy to recognize on your own devices.
                                     </p>
                                 </div>
                                 <div className="p-6 bg-neutral-50 rounded-sm border border-neutral-100 space-y-3">
                                     <h4 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Privacy Tip</h4>
                                     <p className="text-xs text-neutral-600 leading-relaxed">
-                                        Avoid using your full legal name. A device-specific descriptor like "BlinkShare-Station" is often best for operational clarity.
+                                        Avoid using your full name if you share files on public or shared networks.
                                     </p>
                                 </div>
                             </div>
@@ -95,38 +95,38 @@ export default function Settings() {
                                 <Zap className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-black tracking-tight">Interaction Habits</h2>
-                                <p className="text-sm text-neutral-500">Define the friction of your digital handshakes.</p>
+                                <h2 className="text-xl font-bold text-black tracking-tight">Transfer Preferences</h2>
+                                <p className="text-sm text-neutral-500">Choose how new transfer requests should behave.</p>
                             </div>
                         </div>
 
                         <div className="grid md:grid-cols-2 gap-6">
                             <Card className="p-8 border-neutral-100 hover:border-black transition-all">
                                 <Toggle 
-                                    label="Seamless Handshake" 
+                                    label="Auto-Accept Trusted Devices" 
                                     enabled={settings.autoAccept} 
                                     onChange={(val) => updateSetting('autoAccept', val)} 
                                 />
                                 <div className="mt-4 flex items-start gap-3">
                                     <div className="mt-1"><Shield className="w-3 h-3 text-neutral-400" /></div>
                                     <p className="text-xs text-neutral-500 leading-relaxed">
-                                        Files from recognized peers will begin transferring without an explicit prompt. 
-                                        <span className="block mt-2 font-bold text-amber-600 uppercase text-[9px] tracking-widest">High Fluidity Mode</span>
+                                        Trusted devices can start transfers without asking every time.
+                                        <span className="block mt-2 font-bold text-amber-600 uppercase text-[9px] tracking-widest">Use with care</span>
                                     </p>
                                 </div>
                             </Card>
 
                             <Card className="p-8 border-neutral-100 hover:border-black transition-all">
                                 <Toggle 
-                                    label="Public Pulse" 
+                                    label="Device Discovery" 
                                     enabled={settings.discovery} 
                                     onChange={(val) => updateSetting('discovery', val)} 
                                 />
                                 <div className="mt-4 flex items-start gap-3">
                                     <div className="mt-1"><Globe className="w-3 h-3 text-neutral-400" /></div>
                                     <p className="text-xs text-neutral-500 leading-relaxed">
-                                        Emit a signal on local networks so others can find you without a QR code.
-                                        <span className="block mt-2 font-bold text-neutral-400 uppercase text-[9px] tracking-widest">Discovery Active</span>
+                                        Let nearby devices find this browser on the local network.
+                                        <span className="block mt-2 font-bold text-neutral-400 uppercase text-[9px] tracking-widest">Currently on</span>
                                     </p>
                                 </div>
                             </Card>
@@ -140,16 +140,16 @@ export default function Settings() {
                                 <Shield className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-black tracking-tight">Transmission Protocol</h2>
-                                <p className="text-sm text-neutral-500">The underlying engine that drives your transfers.</p>
+                                <h2 className="text-xl font-bold text-black tracking-tight">Security & Network</h2>
+                                <p className="text-sm text-neutral-500">Control how BlinkShare connects during transfers.</p>
                             </div>
                         </div>
 
                         <Card className="border-neutral-100 overflow-hidden divide-y divide-neutral-50">
                             <div className="p-8 flex items-center justify-between gap-8 group">
                                 <div className="space-y-1">
-                                    <h4 className="font-bold text-neutral-900">Encrypted Handshake</h4>
-                                    <p className="text-sm text-neutral-500">Force all signaling to pass through our E2E encrypted gateway.</p>
+                                    <h4 className="font-bold text-neutral-900">Secure Signaling</h4>
+                                    <p className="text-sm text-neutral-500">Use encrypted signaling when setting up a transfer.</p>
                                 </div>
                                 <Toggle 
                                     enabled={settings.secureSignaling} 
@@ -158,8 +158,8 @@ export default function Settings() {
                             </div>
                             <div className="p-8 flex items-center justify-between gap-8">
                                 <div className="space-y-1">
-                                    <h4 className="font-bold text-neutral-900">Peer Optimization</h4>
-                                    <p className="text-sm text-neutral-500">Automatically tune bit-rates based on spatial latency.</p>
+                                    <h4 className="font-bold text-neutral-900">Connection Optimization</h4>
+                                    <p className="text-sm text-neutral-500">Adjust transfer settings automatically when the connection changes.</p>
                                 </div>
                                 <Toggle 
                                     enabled={true} 
@@ -173,19 +173,19 @@ export default function Settings() {
                 {/* Sidebar Utilities */}
                 <div className="lg:col-span-4 space-y-8">
                     <Card className="p-8 bg-neutral-900 text-white border-none shadow-2xl">
-                        <h4 className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500 mb-6">Deep Maintenance</h4>
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500 mb-6">Maintenance</h4>
                         <div className="space-y-3">
                             <Button variant="ghost" className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
                                 <History className="w-4 h-4 mr-4 text-neutral-500" />
-                                Purge All History
+                                Clear History
                             </Button>
                             <Button variant="ghost" className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
                                 <RotateCcw className="w-4 h-4 mr-4 text-neutral-500" />
-                                Recycle Node ID
+                                Reset Device ID
                             </Button>
                             <Button variant="ghost" className="w-full justify-start text-xs font-bold text-red-400 hover:bg-red-900/20 hover:text-red-400 uppercase tracking-widest py-6">
-                                <Ghost className="w-4 h-4 mr-4" />
-                                Ghost Mode
+                                <Shield className="w-4 h-4 mr-4" />
+                                Private Mode
                             </Button>
                         </div>
                     </Card>
@@ -195,10 +195,10 @@ export default function Settings() {
                             <Smartphone className="w-8 h-8 text-neutral-300 mx-auto" />
                             <div>
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 mb-1">Current Version</p>
-                                <p className="text-lg font-mono font-bold text-black tracking-tight">BLINKSHARE OS 1.2.4</p>
+                                <p className="text-lg font-mono font-bold text-black tracking-tight">BlinkShare 1.2.4</p>
                             </div>
                             <div className="pt-4">
-                                <Badge variant="outline" className="bg-white border-neutral-200">System Nominal</Badge>
+                                <Badge variant="outline" className="bg-white border-neutral-200">Up to date</Badge>
                             </div>
                         </div>
                     </Card>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Smartphone, Keyboard, ArrowRight, Zap, RefreshCw } from 'lucide-react';
+import { Camera, Keyboard, ArrowRight, Zap, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
@@ -36,14 +36,14 @@ export default function Send() {
         <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <Badge className="mb-4">Send Module</Badge>
-                    <h1 className="text-4xl font-bold tracking-tighter text-black">Prepare Transfer</h1>
-                    <p className="text-neutral-500 mt-2">Connect a recipient to begin direct file sharing.</p>
+                    <Badge className="mb-4">Send</Badge>
+                    <h1 className="text-4xl font-bold tracking-tighter text-black">Send Files</h1>
+                    <p className="text-neutral-500 mt-2">Choose your files, then pair with the device that should receive them.</p>
                 </div>
                 {state !== 'initial' && (
                     <Button variant="ghost" size="sm" onClick={() => setState('initial')}>
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Restart Setup
+                        Start Over
                     </Button>
                 )}
             </header>
@@ -53,7 +53,7 @@ export default function Send() {
                 <div className="md:col-span-2 space-y-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-sm bg-black text-white flex items-center justify-center font-bold text-xs">01</div>
-                        <h2 className="font-bold text-black uppercase tracking-tight">Connect Device</h2>
+                        <h2 className="font-bold text-black uppercase tracking-tight">Pair Device</h2>
                     </div>
 
                     {state === 'initial' && (
@@ -69,7 +69,7 @@ export default function Send() {
                                     </div>
                                     <div className="flex-1">
                                         <h3 className="font-bold text-sm tracking-tight text-black">Scan QR Code</h3>
-                                        <p className="text-xs text-neutral-500">Fastest p2p pairing method.</p>
+                                        <p className="text-xs text-neutral-500">Use the QR code on the receiving device.</p>
                                     </div>
                                     <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black group-hover:translate-x-1 transition-all" />
                                 </div>
@@ -86,7 +86,7 @@ export default function Send() {
                                     </div>
                                     <div className="flex-1">
                                         <h3 className="font-bold text-sm tracking-tight text-black">Enter Pairing Code</h3>
-                                        <p className="text-xs text-neutral-500">Connect via 8-digit unique key.</p>
+                                        <p className="text-xs text-neutral-500">Type the code shown on the receiving device.</p>
                                     </div>
                                     <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-black group-hover:translate-x-1 transition-all" />
                                 </div>
@@ -99,17 +99,17 @@ export default function Send() {
                     {state === 'manual' && (
                         <Card className="p-8 space-y-6 border-2 border-black">
                             <Input 
-                                label="Session Pairing Code" 
+                                label="Pairing Code" 
                                 placeholder="E.G. BLINK-XXXX" 
                                 value={pairingCode}
                                 onChange={(e) => setPairingCode(e.target.value)}
                                 className="font-mono uppercase text-lg"
                             />
                             <Button className="w-full" onClick={() => {}}>
-                                Authenticate Session
+                                Connect Device
                             </Button>
-                            <p className="text-[10px] text-center text-neutral-400 uppercase tracking-widest ont-medium">
-                                Secured by signal handshake v2
+                            <p className="text-xs text-center text-neutral-400 font-medium leading-relaxed">
+                                The code is only used to connect these two devices.
                             </p>
                         </Card>
                     )}
@@ -119,7 +119,7 @@ export default function Send() {
                 <div className="md:col-span-3 space-y-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-8 h-8 rounded-sm bg-black text-white flex items-center justify-center font-bold text-xs">02</div>
-                        <h2 className="font-bold text-black uppercase tracking-tight">Select Data</h2>
+                        <h2 className="font-bold text-black uppercase tracking-tight">Choose Files</h2>
                     </div>
 
                     <FileDropzone onFilesAdded={handleFilesAdded} />
@@ -134,13 +134,13 @@ export default function Send() {
                                 onClick={handleConnect}
                             >
                                 <span className="relative z-10 flex items-center gap-2">
-                                    Initialize Direct Share
+                                    Start Transfer
                                     <Zap className="w-5 h-5 fill-white" />
                                 </span>
                                 <div className="absolute top-0 right-0 w-32 h-full bg-white/10 skew-x-[45deg] translate-x-16 group-hover:translate-x-0 transition-transform duration-500" />
                             </Button>
-                            <p className="text-center text-[10px] mt-4 text-neutral-400 uppercase tracking-[0.2em] font-medium leading-relaxed">
-                                Once clicked, your browser will establish a direct signaling handshake with the recipient.
+                            <p className="text-center text-xs mt-4 text-neutral-400 font-medium leading-relaxed">
+                                Keep this tab open until the transfer finishes.
                             </p>
                         </div>
                     )}

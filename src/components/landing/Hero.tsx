@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowRight, Zap, Download } from 'lucide-react';
+import { ArrowRight, Download } from 'lucide-react';
 import { Button } from '@/components/ui/Button.tsx';
 import { Link } from 'react-router-dom';
 
@@ -12,16 +12,6 @@ export const Hero = () => {
             </div>
 
             <div className="relative z-10 text-center max-w-4xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-[10px] font-bold uppercase tracking-[0.2em] mb-8"
-                >
-                    <Zap className="w-3 h-3 fill-black text-black" />
-                    <span>Experimental P2P Direct Transfer</span>
-                </motion.div>
-
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -45,16 +35,16 @@ export const Hero = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.6 }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4"
+                    className="flex flex-row flex-nowrap items-center justify-center gap-3 sm:gap-4"
                 >
                     <Link to="/app/send">
-                        <Button size="lg" className="group">
+                        <Button size="lg" className="group px-4 py-3 text-sm sm:px-8 sm:py-4 sm:text-lg">
                             Start Transfer
                             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Button>
                     </Link>
                     <Link to="/app/receive">
-                        <Button variant="outline" size="lg">
+                        <Button variant="outline" size="lg" className="px-4 py-3 text-sm sm:px-8 sm:py-4 sm:text-lg">
                             <Download className="mr-2 w-5 h-5" />
                             Receive Files
                         </Button>

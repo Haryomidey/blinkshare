@@ -27,7 +27,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <button
                 ref={ref}
                 className={cn(
-                    'relative inline-flex items-center justify-center rounded-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer',
+                    'relative inline-flex items-center justify-center whitespace-nowrap rounded-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer',
                     variants[variant],
                     sizes[size],
                     className
@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                         <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                     </div>
                 )}
-                <span className={cn(isLoading && 'opacity-0')}>{children}</span>
+                <span className={cn('inline-flex items-center justify-center whitespace-nowrap', isLoading && 'opacity-0')}>{children}</span>
             </button>
         );
     }

@@ -1,5 +1,6 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout.tsx';
+import { ScrollToTop } from '@/components/layout/ScrollToTop.tsx';
 import Landing from '@/pages/home/index.tsx';
 import Dashboard from '@/pages/dashboard/index.tsx';
 import Send from '@/pages/dashboard/send/index.tsx';
@@ -9,44 +10,57 @@ import History from '@/pages/dashboard/history/index.tsx';
 import Settings from '@/pages/dashboard/settings/index.tsx';
 import NotFound from '@/pages/NotFound.tsx';
 
+const RootLayout = () => (
+    <>
+        <ScrollToTop />
+        <Outlet />
+    </>
+);
+
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Landing />,
-    },
-    {
-        path: '/app',
-        element: <AppLayout />,
+        element: <RootLayout />,
         children: [
             {
                 index: true,
-                element: <Dashboard />,
+                element: <Landing />,
             },
             {
-                path: 'send',
-                element: <Send />,
+                path: 'app',
+                element: <AppLayout />,
+                children: [
+                    {
+                        index: true,
+                        element: <Dashboard />,
+                    },
+                    {
+                        path: 'send',
+                        element: <Send />,
+                    },
+                    {
+                        path: 'receive',
+                        element: <Receive />,
+                    },
+                    {
+                        path: 'session/:sessionId',
+                        element: <TransferSession />,
+                    },
+                    {
+                        path: 'history',
+                        element: <History />,
+                    },
+                    {
+                        path: 'settings',
+                        element: <Settings />,
+                    },
+                ],
             },
             {
-                path: 'receive',
-                element: <Receive />,
-            },
-            {
-                path: 'session/:sessionId',
-                element: <TransferSession />,
-            },
-            {
-                path: 'history',
-                element: <History />,
-            },
-            {
-                path: 'settings',
-                element: <Settings />,
+                path: '*',
+                element: <NotFound />,
             },
         ],
-    },
-    {
-        path: '*',
-        element: <NotFound />,
     },
 ]);
 

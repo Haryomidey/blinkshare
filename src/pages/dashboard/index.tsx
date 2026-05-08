@@ -11,23 +11,23 @@ import { motion } from 'motion/react';
 export default function Dashboard() {
     return (
         <div className="space-y-12 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Ecosystem Header */}
+            {/* Dashboard Header */}
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <h1 className="text-5xl font-bold tracking-tight text-neutral-900 mb-2">Live Node</h1>
+                    <h1 className="text-5xl font-bold tracking-tight text-neutral-900 mb-2">Dashboard</h1>
                     <p className="text-lg text-neutral-500 font-light max-w-xl">
-                        Your direct gateway to the local peer mesh. Status: <span className="text-black font-bold uppercase text-xs tracking-widest bg-neutral-100 px-2 py-0.5 rounded-sm">Operational</span>
+                        Send or receive files from nearby devices. Everything is ready when you are.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Card className="px-4 py-2 bg-neutral-50 border-neutral-100 flex items-center gap-3">
                         <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 italic">No Latency detected</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Ready to transfer</span>
                     </Card>
                 </div>
             </header>
 
-            {/* Quick Handshakes */}
+            {/* Quick Actions */}
             <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2">
                     <div className="p-12 bg-neutral-900 rounded-sm border border-black relative overflow-hidden group shadow-2xl">
@@ -35,21 +35,21 @@ export default function Dashboard() {
                             <Zap size={240} fill="white" className="text-white" />
                         </div>
                         <div className="relative z-10">
-                            <Badge className="mb-6 bg-white/10 text-white border-white/20 hover:bg-white/20 transition-colors cursor-default">P2P Active</Badge>
-                            <h2 className="text-5xl font-bold tracking-tight text-white mb-6 leading-tight">Forge a new<br />handshake.</h2>
+                            <Badge className="mb-6 bg-white/10 text-white border-white/20 hover:bg-white/20 transition-colors cursor-default">Direct transfer</Badge>
+                            <h2 className="text-5xl font-bold tracking-tight text-white mb-6 leading-tight">Start a new<br />file transfer.</h2>
                             <p className="text-xl text-neutral-400 max-w-md mb-12 leading-relaxed font-light">
-                                Skip the cloud entirely. Transfer at the physical limits of your network.
+                                Pick files, pair with another device, and move them without uploading to cloud storage.
                             </p>
-                            <div className="flex flex-wrap gap-4">
+                            <div className="flex flex-nowrap gap-3 sm:gap-4">
                                 <Link to="/app/send">
-                                    <Button size="lg" className="bg-white text-black hover:bg-neutral-200 px-8 py-7 text-lg rounded-sm transition-all hover:-translate-y-1">
-                                        Initiate Send
-                                        <ArrowRight className="ml-3 w-6 h-6" />
+                                    <Button size="lg" className="bg-white text-black hover:bg-neutral-200 px-4 py-4 text-sm sm:px-8 sm:py-7 sm:text-lg rounded-sm transition-all hover:-translate-y-1">
+                                        Send Files
+                                        <ArrowRight className="ml-2 w-5 h-5 sm:ml-3 sm:w-6 sm:h-6" />
                                     </Button>
                                 </Link>
                                 <Link to="/app/receive">
-                                    <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-8 py-7 text-lg rounded-sm transition-all">
-                                        Await Data
+                                    <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-4 py-4 text-sm sm:px-8 sm:py-7 sm:text-lg rounded-sm transition-all">
+                                        Receive Files
                                     </Button>
                                 </Link>
                             </div>
@@ -64,32 +64,32 @@ export default function Dashboard() {
                                 <div className="p-3 bg-neutral-900 rounded-full">
                                     <Shield className="w-5 h-5 text-white" />
                                 </div>
-                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Security Core</span>
+                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400">Privacy</span>
                             </div>
-                            <h3 className="text-2xl font-bold tracking-tight text-black mb-4">Zero-Footprint</h3>
-                            <p className="text-base text-neutral-500 leading-relaxed font-light italic">
-                                "Your data is a conversation between two peers, and we aren't listening."
+                            <h3 className="text-2xl font-bold tracking-tight text-black mb-4">Files stay between devices</h3>
+                            <p className="text-base text-neutral-500 leading-relaxed font-light">
+                                BlinkShare helps devices connect directly, so your files are not stored on our servers.
                             </p>
                         </div>
                         <Link to="/app/settings" className="mt-12 text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400 flex items-center gap-2 hover:text-black hover:translate-x-1 transition-all group">
-                            Protocol Settings <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                            Review settings <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </Card>
                 </div>
             </div>
 
-            {/* Ecosystem Vitals */}
+            {/* Stats */}
             <div className="space-y-8">
                 <div className="flex items-center gap-4">
                     <Cpu className="w-5 h-5 text-neutral-400" />
-                    <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Ecosystem Vitals</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Transfer Stats</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
                         { label: 'Shares Sent', value: mockStats.totalSent, icon: Send },
                         { label: 'Shares Received', value: mockStats.totalReceived, icon: Download },
                         { label: 'Total Volume', value: formatFileSize(mockStats.totalTransferred), icon: Share2 },
-                        { label: 'Pulse Speed', value: formatSpeed(mockStats.averageSpeed), icon: Zap },
+                        { label: 'Average Speed', value: formatSpeed(mockStats.averageSpeed), icon: Zap },
                     ].map((stat, i) => (
                     <motion.div 
                         key={i}
@@ -114,16 +114,16 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Live Pulse */}
+            {/* Recent Activity */}
             <div className="space-y-8">
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
                     <div className="flex items-center gap-4">
                         <History className="w-5 h-5 text-neutral-400" />
-                        <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Live Pulse</h3>
+                        <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral-400">Recent Activity</h3>
                     </div>
                     <Link to="/app/history">
                         <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-black">
-                            Expansion →
+                            View all
                         </Button>
                     </Link>
                 </div>

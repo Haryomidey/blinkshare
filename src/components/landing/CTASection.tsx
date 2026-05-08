@@ -19,15 +19,15 @@ export const CTASection = () => {
                     <p className="text-xl text-neutral-400 max-w-xl mx-auto mb-12">
                         Experience the direct browser-to-browser transfer technology. Start your session now.
                     </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <div className="flex flex-row flex-nowrap items-center justify-center gap-3 sm:gap-6">
                         <Link to="/app/send">
-                            <Button size="lg" className="bg-white text-black hover:bg-neutral-200">
+                            <Button size="lg" className="bg-white text-black hover:bg-neutral-200 px-4 py-3 text-sm sm:px-8 sm:py-4 sm:text-lg">
                                 Send a File
                                 <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
                         </Link>
                         <Link to="/app/receive">
-                            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 px-4 py-3 text-sm sm:px-8 sm:py-4 sm:text-lg">
                                 Receive Files
                             </Button>
                         </Link>
