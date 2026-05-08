@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { api, realtimeUrl } from '@/services/api.ts';
 import type { ReceiveSession } from '@/types/transfer.ts';
 
-export const useReceiveSession = () => {
+export const useReceiveSession = (deviceName = 'This device') => {
     const [session, setSession] = useState<ReceiveSession | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -10,7 +10,7 @@ export const useReceiveSession = () => {
     const createSession = async () => {
         setIsLoading(true);
         try {
-            const nextSession = await api.createReceiveSession('This device');
+            const nextSession = await api.createReceiveSession(deviceName);
             setSession(nextSession);
             setError(null);
         } catch (requestError) {
@@ -22,7 +22,7 @@ export const useReceiveSession = () => {
 
     useEffect(() => {
         void createSession();
-    }, []);
+    }, [deviceName]);
 
     useEffect(() => {
         if (!session) return;

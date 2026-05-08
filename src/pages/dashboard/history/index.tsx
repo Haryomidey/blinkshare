@@ -1,4 +1,5 @@
 import { History } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { TransferHistoryList } from '@/components/transfer/TransferHistoryList.tsx';
 import { EmptyState } from '@/components/ui/EmptyState.tsx';
@@ -9,7 +10,18 @@ import { formatFileSize, formatSpeed } from '@/lib/formatters.ts';
 
 export default function HistoryPage() {
     const { transfers, stats, isLoading, error } = useRealtimeTransfers();
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
     const hasTransfers = transfers.length > 0;
+    const totalPages = Math.max(1, Math.ceil(transfers.length / pageSize));
+    const visibleTransfers = useMemo(() => {
+        const start = (page - 1) * pageSize;
+        return transfers.slice(start, start + pageSize);
+    }, [page, transfers]);
+
+    useEffect(() => {
+        setPage((currentPage) => Math.min(currentPage, totalPages));
+    }, [totalPages]);
 
     return (
         <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -56,13 +68,36 @@ export default function HistoryPage() {
                         </div>
                     </div>
 
-                    <TransferHistoryList transfers={transfers} />
+                    <TransferHistoryList transfers={visibleTransfers} />
                     
-                    <div className="flex justify-center pt-8">
-                        <Button variant="outline" size="sm">
-                            Load More
-                        </Button>
-                    </div>
+                    {totalPages > 1 && (
+                        <div className="flex flex-col items-center justify-between gap-4 pt-8 sm:flex-row">
+                            <p className="text-xs text-neutral-500">
+                                Showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, transfers.length)} of {transfers.length}
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page === 1}
+                                    onClick={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
+                                >
+                                    Previous
+                                </Button>
+                                <span className="px-3 text-xs font-bold text-neutral-500">
+                                    {page} / {totalPages}
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page === totalPages}
+                                    onClick={() => setPage((currentPage) => Math.min(totalPages, currentPage + 1))}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

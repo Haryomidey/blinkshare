@@ -24,7 +24,6 @@ export const useRealtimeTransfer = (id?: string) => {
         };
 
         void load();
-        void api.startTransfer(id).catch(() => undefined);
 
         const socket = new WebSocket(realtimeUrl);
 

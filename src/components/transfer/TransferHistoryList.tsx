@@ -155,7 +155,7 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="min-w-0 space-y-2">
                                                 <div className="flex min-w-0 flex-wrap items-center gap-2">
-                                                    <p className="max-w-full truncate text-sm font-bold text-black sm:max-w-[260px]">{tx.name}</p>
+                                                    <p className="max-w-full truncate text-sm font-bold text-black sm:max-w-65">{tx.name}</p>
                                                 <Badge variant={tx.status === 'completed' ? 'success' : tx.status === 'failed' || tx.status === 'cancelled' ? 'error' : 'outline'}>
                                                     {tx.status}
                                                 </Badge>

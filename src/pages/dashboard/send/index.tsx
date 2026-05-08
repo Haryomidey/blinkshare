@@ -15,10 +15,13 @@ type SendState = 'initial' | 'scanning' | 'manual' | 'files';
 export default function Send() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const [state, setState] = useState<SendState>('initial');
+    const inviteCode = searchParams.get('session') ?? '';
+    const [state, setState] = useState<SendState>(inviteCode ? 'manual' : 'initial');
     const [files, setFiles] = useState<File[]>([]);
-    const [pairingCode, setPairingCode] = useState(searchParams.get('session') ?? '');
+    const [pairingCode, setPairingCode] = useState(inviteCode);
     const [isCreatingTransfer, setIsCreatingTransfer] = useState(false);
+    const [isPairing, setIsPairing] = useState(false);
+    const [isPaired, setIsPaired] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleFilesAdded = (newFiles: File[]) => {
@@ -31,6 +34,10 @@ export default function Send() {
 
     const handleConnect = async () => {
         if (files.length === 0) return;
+        if (!isPaired || !pairingCode.trim()) {
+            setError('Connect to a receiving device before starting the transfer.');
+            return;
+        }
 
         setIsCreatingTransfer(true);
         setError(null);
@@ -41,11 +48,36 @@ export default function Send() {
                 pairingCode: pairingCode.trim() || undefined,
             });
 
-            navigate(`/app/session/${transfer.id}`);
+            navigate(`/app/session/${transfer.id}`, { state: { role: 'sender', files } });
         } catch (requestError) {
             setError(requestError instanceof Error ? requestError.message : 'Unable to start transfer');
         } finally {
             setIsCreatingTransfer(false);
+        }
+    };
+
+    const handlePairDevice = async () => {
+        if (!pairingCode.trim()) {
+            setError('Enter the receive code shown on the other device.');
+            return;
+        }
+
+        setIsPairing(true);
+        setError(null);
+
+        try {
+            const session = await api.getReceiveSession(pairingCode.trim());
+            if (session.status !== 'waiting') {
+                setError('That receive code is no longer available. Create a new one on the receiving device.');
+                return;
+            }
+
+            setIsPaired(true);
+            setState('files');
+        } catch (requestError) {
+            setError(requestError instanceof Error ? requestError.message : 'Unable to connect to that receive code');
+        } finally {
+            setIsPairing(false);
         }
     };
 
@@ -120,10 +152,13 @@ export default function Send() {
                                 label="Pairing Code" 
                                 placeholder="E.G. BLINK-XXXX" 
                                 value={pairingCode}
-                                onChange={(e) => setPairingCode(e.target.value)}
+                                onChange={(e) => {
+                                    setPairingCode(e.target.value);
+                                    setIsPaired(false);
+                                }}
                                 className="font-mono uppercase text-lg"
                             />
-                            <Button className="w-full" onClick={() => setState('files')}>
+                            <Button className="w-full" onClick={handlePairDevice} isLoading={isPairing}>
                                 Connect Device
                             </Button>
                             <p className="text-xs text-center text-neutral-400 font-medium leading-relaxed">
@@ -141,6 +176,12 @@ export default function Send() {
                     </div>
 
                     <FileDropzone onFilesAdded={handleFilesAdded} />
+
+                    {!isPaired && (
+                        <div className="rounded-sm border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                            Pair with a receiving device before starting the transfer.
+                        </div>
+                    )}
                     
                     <FileQueue files={files} onRemove={handleRemoveFile} />
 
@@ -151,6 +192,7 @@ export default function Send() {
                                 className="w-full relative overflow-hidden group shadow-xl"
                                 onClick={handleConnect}
                                 isLoading={isCreatingTransfer}
+                                disabled={!isPaired}
                             >
                                 <span className="relative z-10 flex items-center gap-2">
                                     Start Transfer

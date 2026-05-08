@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { User, Smartphone, Shield, Zap, History, RotateCcw, Globe, Fingerprint } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
@@ -6,19 +5,14 @@ import { Input } from '@/components/ui/Input.tsx';
 import { Toggle } from '@/components/ui/Toggle.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { motion } from 'motion/react';
+import { useAppSettings } from '@/hooks/useAppSettings.ts';
+import { api } from '@/services/api.ts';
 
 export default function Settings() {
-    const [settings, setSettings] = useState({
-        deviceName: 'Work Laptop',
-        autoAccept: false,
-        discovery: true,
-        notifyOnComplete: true,
-        p2pOptimized: true,
-        secureSignaling: true
-    });
-
-    const updateSetting = (key: string, value: any) => {
-        setSettings(prev => ({ ...prev, [key]: value }));
+    const { settings, updateSetting, clearSettings, resetDeviceId } = useAppSettings();
+    const clearHistory = async () => {
+        localStorage.removeItem('blinkshare_transfer_history');
+        await api.clearTransfers().catch(() => undefined);
     };
 
     return (
@@ -42,7 +36,7 @@ export default function Settings() {
                         </div>
                         <div className="text-left">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Device ID</p>
-                            <p className="text-sm font-mono font-bold text-black">#8X221P</p>
+                            <p className="text-sm font-mono font-bold text-black">{settings.deviceId}</p>
                         </div>
                     </div>
                 </div>
@@ -130,6 +124,20 @@ export default function Settings() {
                                     </p>
                                 </div>
                             </Card>
+
+                            <Card className="p-8 border-neutral-100 hover:border-black transition-all">
+                                <Toggle
+                                    label="Transfer Notifications"
+                                    enabled={settings.notifyOnComplete}
+                                    onChange={(val) => updateSetting('notifyOnComplete', val)}
+                                />
+                                <div className="mt-4 flex items-start gap-3">
+                                    <div className="mt-1"><Shield className="w-3 h-3 text-neutral-400" /></div>
+                                    <p className="text-xs text-neutral-500 leading-relaxed">
+                                        Show completion updates in the notification menu.
+                                    </p>
+                                </div>
+                            </Card>
                         </div>
                     </section>
 
@@ -162,8 +170,8 @@ export default function Settings() {
                                     <p className="text-sm text-neutral-500">Adjust transfer settings automatically when the connection changes.</p>
                                 </div>
                                 <Toggle 
-                                    enabled={true} 
-                                    onChange={() => {}} 
+                                    enabled={settings.p2pOptimized} 
+                                    onChange={(val) => updateSetting('p2pOptimized', val)} 
                                 />
                             </div>
                         </Card>
@@ -175,17 +183,21 @@ export default function Settings() {
                     <Card className="p-8 bg-neutral-900 text-white border-none shadow-2xl">
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500 mb-6">Maintenance</h4>
                         <div className="space-y-3">
-                            <Button variant="ghost" className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
+                            <Button variant="ghost" onClick={clearHistory} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
                                 <History className="w-4 h-4 mr-4 text-neutral-500" />
                                 Clear History
                             </Button>
-                            <Button variant="ghost" className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
+                            <Button variant="ghost" onClick={resetDeviceId} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
                                 <RotateCcw className="w-4 h-4 mr-4 text-neutral-500" />
                                 Reset Device ID
                             </Button>
-                            <Button variant="ghost" className="w-full justify-start text-xs font-bold text-red-400 hover:bg-red-900/20 hover:text-red-400 uppercase tracking-widest py-6">
+                            <Button variant="ghost" onClick={() => updateSetting('privateMode', !settings.privateMode)} className="w-full justify-start text-xs font-bold text-red-400 hover:bg-red-900/20 hover:text-red-400 uppercase tracking-widest py-6">
                                 <Shield className="w-4 h-4 mr-4" />
-                                Private Mode
+                                {settings.privateMode ? 'Disable Private Mode' : 'Private Mode'}
+                            </Button>
+                            <Button variant="ghost" onClick={clearSettings} className="w-full justify-start text-xs font-bold text-white hover:bg-white/10 uppercase tracking-widest py-6">
+                                <RotateCcw className="w-4 h-4 mr-4 text-neutral-500" />
+                                Reset Settings
                             </Button>
                         </div>
                     </Card>

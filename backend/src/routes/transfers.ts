@@ -6,10 +6,12 @@ export const createTransferRouter = (controller: TransferController) => {
 
     router.get('/', controller.list);
     router.get('/stats', controller.stats);
+    router.delete('/', controller.clear);
     router.get('/:id', controller.findById);
     router.post('/', controller.create);
     router.post('/:id/start', controller.start);
     router.post('/:id/cancel', controller.cancel);
+    router.patch('/:id/progress', controller.updateProgress);
 
     return router;
 };

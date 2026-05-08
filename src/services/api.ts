@@ -34,6 +34,9 @@ export const realtimeUrl = getRealtimeUrl();
 
 export const api = {
     listTransfers: () => request<Transfer[]>('/api/transfers'),
+    clearTransfers: () => fetch(`${API_URL}/api/transfers`, { method: 'DELETE' }).then((response) => {
+        if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+    }),
     getTransfer: (id: string) => request<Transfer>(`/api/transfers/${id}`),
     getStats: () => request<TransferStats>('/api/transfers/stats'),
     createTransfer: (payload: {
@@ -45,6 +48,16 @@ export const api = {
         body: JSON.stringify(payload),
     }),
     startTransfer: (id: string) => request<Transfer>(`/api/transfers/${id}/start`, { method: 'POST' }),
+    updateTransferProgress: (id: string, payload: {
+        bytesTransferred: number;
+        progress: number;
+        speed?: number;
+        status?: Transfer['status'];
+        files?: Array<{ id: string; progress: number; status: 'waiting' | 'transferring' | 'completed' | 'failed' }>;
+    }) => request<Transfer>(`/api/transfers/${id}/progress`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+    }),
     cancelTransfer: (id: string) => request<Transfer>(`/api/transfers/${id}/cancel`, { method: 'POST' }),
     createReceiveSession: (deviceName: string) => request<ReceiveSession>('/api/receive-sessions', {
         method: 'POST',

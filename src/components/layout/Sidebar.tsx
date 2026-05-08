@@ -43,14 +43,6 @@ export const Sidebar = () => {
                     );
                 })}
             </nav>
-
-            <div className="p-8 border-t border-neutral-100">
-                <div className="bg-neutral-50 p-4 rounded-sm border border-neutral-100">
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-neutral-400 mb-2">Connected Device</p>
-                    <p className="text-sm font-medium text-black">Studio-Workstation</p>
-                    <p className="text-[10px] text-neutral-400 mt-1">Version 1.0.4-stable</p>
-                </div>
-            </div>
         </aside>
     );
 };

@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { QRCodePanel } from '@/components/transfer/QRCodePanel.tsx';
 import { useReceiveSession } from '@/hooks/useReceiveSession.ts';
+import { useAppSettings } from '@/hooks/useAppSettings.ts';
 
 export default function Receive() {
     const navigate = useNavigate();
-    const { session, isLoading, error, refresh } = useReceiveSession();
+    const { settings } = useAppSettings();
+    const { session, isLoading, error, refresh } = useReceiveSession(settings.deviceName);
 
     const copyInviteLink = () => {
         if (!session) return;
@@ -19,7 +21,7 @@ export default function Receive() {
 
     useEffect(() => {
         if (session?.status === 'paired' && session.transferId) {
-            navigate(`/app/session/${session.transferId}`);
+            navigate(`/app/session/${session.transferId}`, { state: { role: 'receiver' } });
         }
     }, [navigate, session?.status, session?.transferId]);
 

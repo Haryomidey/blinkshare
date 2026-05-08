@@ -4,7 +4,7 @@ import type { ReceiveSessionRepository } from '../repositories/ReceiveSessionRep
 import type { RealtimeHub } from './RealtimeHub.js';
 import { createId } from '../utils/ids.js';
 
-interface CreateTransferInput {
+export interface CreateTransferInput {
     files: Array<{ name: string; size: number }>;
     type?: TransferType;
     sender?: string;
@@ -33,7 +33,19 @@ export class TransferService {
         return this.transfers.stats();
     }
 
+    async clear() {
+        this.activeTimers.forEach((timer) => clearInterval(timer));
+        this.activeTimers.clear();
+        await this.transfers.clear();
+        this.realtime.broadcast({ type: 'transfer:list', payload: [] });
+        this.realtime.broadcast({ type: 'stats:updated', payload: await this.transfers.stats() });
+    }
+
     async create(input: CreateTransferInput) {
+        if (!input.pairingCode?.trim()) {
+            throw new Error('Enter a receive code before starting a transfer.');
+        }
+
         const now = new Date().toISOString();
         const files: TransferFile[] = input.files.map((file) => ({
             id: createId('FILE'),
@@ -45,6 +57,15 @@ export class TransferService {
         const pairedSession = input.pairingCode
             ? await this.receiveSessions.findByCode(input.pairingCode.toUpperCase())
             : null;
+
+        if (!pairedSession) {
+            throw new Error('That receive code was not found. Check the receiving device and try again.');
+        }
+
+        if (pairedSession.status !== 'waiting') {
+            throw new Error('That receive code is no longer available. Create a new receive session and try again.');
+        }
+
         const transfer: Transfer = {
             id: createId('TX'),
             name: files.length === 1 ? files[0].name : `${files.length} files`,
@@ -52,9 +73,10 @@ export class TransferService {
             status: 'waiting',
             type: input.type ?? 'sent',
             sender: input.sender ?? 'This device',
-            receiver: pairedSession?.deviceName ?? input.receiver ?? 'Receiving device',
+            receiver: pairedSession.deviceName,
             files,
             progress: 0,
+            bytesTransferred: 0,
             speed: 0,
             createdAt: now,
             updatedAt: now,
@@ -76,15 +98,35 @@ export class TransferService {
 
     async start(id: string) {
         const transfer = await this.transfers.findById(id);
-        if (!transfer || this.activeTimers.has(id)) return transfer;
+        if (!transfer) return transfer;
         if (transfer.status === 'completed' || transfer.status === 'cancelled') return transfer;
 
         const started = await this.transfers.update(id, { status: 'transferring' });
         if (started) await this.broadcastState(started);
-
-        const timer = setInterval(() => void this.tick(id), 700);
-        this.activeTimers.set(id, timer);
         return started;
+    }
+
+    async updateProgress(id: string, input: UpdateTransferProgressInput) {
+        const transfer = await this.transfers.findById(id);
+        if (!transfer) return null;
+
+        const files = input.files
+            ? transfer.files.map((file) => {
+                const patch = input.files?.find((item) => item.id === file.id);
+                return patch ? { ...file, progress: patch.progress, status: patch.status } : file;
+            })
+            : transfer.files;
+        const updated = await this.transfers.update(id, {
+            bytesTransferred: input.bytesTransferred,
+            progress: input.progress,
+            speed: input.speed ?? transfer.speed,
+            files,
+            status: input.status ?? transfer.status,
+            completedAt: input.status === 'completed' ? new Date().toISOString() : transfer.completedAt,
+        });
+
+        if (updated) await this.broadcastState(updated);
+        return updated;
     }
 
     async cancel(id: string) {
@@ -127,6 +169,7 @@ export class TransferService {
         const updated = await this.transfers.update(id, {
             files,
             progress,
+            bytesTransferred: Math.round(completedBytes),
             speed,
             status: isCompleted ? 'completed' : 'transferring',
             completedAt: isCompleted ? new Date().toISOString() : transfer.completedAt,
@@ -146,4 +189,12 @@ export class TransferService {
         this.realtime.broadcast({ type: 'transfer:list', payload: await this.transfers.list() });
         this.realtime.broadcast({ type: 'stats:updated', payload: await this.transfers.stats() });
     }
+}
+
+export interface UpdateTransferProgressInput {
+    bytesTransferred: number;
+    progress: number;
+    speed?: number;
+    files?: Array<{ id: string; progress: number; status: TransferFile['status'] }>;
+    status?: Transfer['status'];
 }

@@ -23,6 +23,7 @@ const transferSchema = new Schema<Transfer>(
         receiver: String,
         files: { type: [transferFileSchema], default: [] },
         progress: { type: Number, required: true },
+        bytesTransferred: { type: Number, required: true, default: 0 },
         speed: { type: Number, required: true },
         createdAt: { type: String, required: true },
         updatedAt: { type: String, required: true },

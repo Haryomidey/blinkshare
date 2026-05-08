@@ -37,7 +37,7 @@ export const ConnectionStatus = ({ status, deviceName = "Unknown Device", device
             <p className="text-[10px] uppercase font-bold tracking-[.3em] text-neutral-400 mb-2">Recipient</p>
             <h3 className="text-2xl font-bold tracking-tight text-black">{deviceName}</h3>
             <p className="text-sm text-neutral-500 mt-2">
-                {status === 'connected' ? 'Established direct connection. Ready for transfer.' : 'Attempting to establish direct connection...'}
+                {status === 'connected' ? 'Receiver paired. Keep both pages open while files move.' : 'Waiting for receiver pairing...'}
             </p>
         </Card>
     );

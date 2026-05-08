@@ -1,30 +1,50 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Bell, Search, User, X, Zap, Shield } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { Bell, Search, User, X, Zap, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils.ts';
 import { motion, AnimatePresence } from 'motion/react';
+import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers.ts';
+import { useAppSettings } from '@/hooks/useAppSettings.ts';
 
-const mockNotifications = [
-    {
-        id: 1,
-        title: "Connection Established",
-        message: "You are now securely linked with 'iPad Pro'.",
-        time: "Just now",
-        type: "success",
-        icon: Zap
-    },
-    {
-        id: 2,
-        title: "Protocol Update",
-        message: "Peer-to-peer discovery has been optimized for your current network.",
-        time: "2 hours ago",
-        type: "info",
-        icon: Shield
-    }
-];
+const getRelativeTime = (dateString: string) => {
+    const seconds = Math.max(1, Math.floor((Date.now() - new Date(dateString).getTime()) / 1000));
+    if (seconds < 60) return 'Just now';
+
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+
+    return `${Math.floor(hours / 24)}d ago`;
+};
 
 export const Header = () => {
     const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+    const [readNotificationIds, setReadNotificationIds] = useState<string[]>([]);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const { transfers } = useRealtimeTransfers();
+    const { settings } = useAppSettings();
+
+    const notifications = useMemo(() => {
+        if (!settings.notifyOnComplete) return [];
+
+        return transfers.slice(0, 6).map((transfer) => {
+            const isCompleted = transfer.status === 'completed';
+            const isFailed = transfer.status === 'failed' || transfer.status === 'cancelled';
+            const Icon = isCompleted ? CheckCircle2 : isFailed ? AlertCircle : transfer.status === 'transferring' ? Zap : Clock;
+            const device = transfer.type === 'sent' ? transfer.receiver : transfer.sender;
+
+            return {
+                id: `${transfer.id}-${transfer.status}`,
+                title: isCompleted ? 'Transfer complete' : isFailed ? 'Transfer stopped' : 'Transfer update',
+                message: `${transfer.name} ${isCompleted ? 'finished' : isFailed ? 'did not finish' : 'is in progress'}${device ? ` with ${device}` : ''}.`,
+                time: getRelativeTime(transfer.updatedAt),
+                icon: Icon,
+            };
+        });
+    }, [settings.notifyOnComplete, transfers]);
+
+    const hasUnread = notifications.some((note) => !readNotificationIds.includes(note.id));
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -57,7 +77,7 @@ export const Header = () => {
                         )}
                     >
                         <Bell className="w-5 h-5 text-neutral-500" />
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-black rounded-full border border-white" />
+                        {hasUnread && <span className="absolute top-2 right-2 w-2 h-2 bg-black rounded-full border border-white" />}
                     </button>
 
                     <AnimatePresence>
@@ -69,13 +89,18 @@ export const Header = () => {
                                 className="absolute right-0 mt-2 w-80 bg-white border border-neutral-200 rounded-sm shadow-2xl overflow-hidden z-50 text-left"
                             >
                                 <div className="p-4 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/50">
-                                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black">System Feed</h3>
+                                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black">Notifications</h3>
                                     <button onClick={() => setIsNotifyOpen(false)} className="text-neutral-400 hover:text-black">
                                         <X size={14} />
                                     </button>
                                 </div>
                                 <div className="max-h-[400px] overflow-y-auto">
-                                    {mockNotifications.map((note) => (
+                                    {notifications.length === 0 ? (
+                                        <div className="p-8 text-center">
+                                            <p className="text-sm font-bold text-black">No notifications yet</p>
+                                            <p className="mt-1 text-xs text-neutral-500">Transfer updates will appear here.</p>
+                                        </div>
+                                    ) : notifications.map((note) => (
                                         <div key={note.id} className="p-4 hover:bg-neutral-50 border-b border-neutral-50 flex gap-3 group transition-colors cursor-pointer text-left">
                                             <div className="mt-0.5 shrink-0">
                                                 <div className="w-8 h-8 rounded-sm bg-black flex items-center justify-center">
@@ -93,7 +118,10 @@ export const Header = () => {
                                     ))}
                                 </div>
                                 <div className="p-3 bg-neutral-50 text-center">
-                                    <button className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors">
+                                    <button
+                                        onClick={() => setReadNotificationIds(notifications.map((note) => note.id))}
+                                        className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 hover:text-black transition-colors"
+                                    >
                                         Mark all as read
                                     </button>
                                 </div>

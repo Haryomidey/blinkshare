@@ -20,6 +20,7 @@ export interface Transfer {
     receiver?: string;
     files: TransferFile[];
     progress: number;
+    bytesTransferred: number;
     speed: number;
     createdAt: string;
     updatedAt: string;

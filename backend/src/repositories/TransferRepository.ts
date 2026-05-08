@@ -6,6 +6,7 @@ export interface TransferRepository {
     findById(id: string): Promise<Transfer | null>;
     create(transfer: Transfer): Promise<Transfer>;
     update(id: string, patch: Partial<Transfer>): Promise<Transfer | null>;
+    clear(): Promise<void>;
     stats(): Promise<TransferStats>;
 }
 
@@ -15,10 +16,11 @@ const sortNewest = (items: Transfer[]) =>
 const calculateStats = (items: Transfer[]): TransferStats => {
     const completed = items.filter((transfer) => transfer.status === 'completed');
     const speedSamples = completed.map((transfer) => transfer.speed).filter((speed) => speed > 0);
+    const pairedTransfers = items.filter((transfer) => Boolean(transfer.receiver));
 
     return {
         totalSent: items.filter((transfer) => transfer.type === 'sent').length,
-        totalReceived: items.filter((transfer) => transfer.type === 'received').length,
+        totalReceived: items.filter((transfer) => transfer.type === 'received').length + pairedTransfers.length,
         totalTransferred: completed.reduce((total, transfer) => total + transfer.size, 0),
         averageSpeed: speedSamples.length
             ? Math.round(speedSamples.reduce((total, speed) => total + speed, 0) / speedSamples.length)
@@ -51,6 +53,10 @@ export class MemoryTransferRepository implements TransferRepository {
         return updated;
     }
 
+    async clear() {
+        this.transfers.clear();
+    }
+
     async stats() {
         return calculateStats([...this.transfers.values()]);
     }
@@ -76,6 +82,10 @@ export class MongoTransferRepository implements TransferRepository {
             { ...patch, updatedAt: new Date().toISOString() },
             { new: true }
         ).lean<Transfer | null>();
+    }
+
+    async clear() {
+        await TransferModel.deleteMany({});
     }
 
     async stats() {
