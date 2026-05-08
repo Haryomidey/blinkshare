@@ -56,17 +56,20 @@ export default function Send() {
         }
     };
 
-    const handlePairDevice = async () => {
-        if (!pairingCode.trim()) {
+    const handlePairDevice = async (codeOverride?: string) => {
+        const code = (codeOverride ?? pairingCode).trim();
+
+        if (!code) {
             setError('Enter the receive code shown on the other device.');
             return;
         }
 
         setIsPairing(true);
         setError(null);
+        setPairingCode(code);
 
         try {
-            const session = await api.getReceiveSession(pairingCode.trim());
+            const session = await api.getReceiveSession(code);
             if (session.status !== 'waiting') {
                 setError('That receive code is no longer available. Create a new one on the receiving device.');
                 return;
@@ -101,7 +104,7 @@ export default function Send() {
             <div className="grid md:grid-cols-5 gap-8">
                 {/* Step 1: Connect */}
                 <div className="md:col-span-2 space-y-6">
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center justify-center gap-3 mb-6 md:justify-start">
                         <div className="w-8 h-8 rounded-sm bg-black text-white flex items-center justify-center font-bold text-xs">01</div>
                         <h2 className="font-bold text-black uppercase tracking-tight">Pair Device</h2>
                     </div>
@@ -144,7 +147,9 @@ export default function Send() {
                         </div>
                     )}
 
-                    {state === 'scanning' && <QRScannerPanel />}
+                    {state === 'scanning' && (
+                        <QRScannerPanel onCodeDetected={(code) => void handlePairDevice(code)} />
+                    )}
 
                     {state === 'manual' && (
                         <Card className="p-8 space-y-6 border-2 border-black">
@@ -158,7 +163,7 @@ export default function Send() {
                                 }}
                                 className="font-mono uppercase text-lg"
                             />
-                            <Button className="w-full" onClick={handlePairDevice} isLoading={isPairing}>
+                            <Button className="w-full" onClick={() => void handlePairDevice()} isLoading={isPairing}>
                                 Connect Device
                             </Button>
                             <p className="text-xs text-center text-neutral-400 font-medium leading-relaxed">

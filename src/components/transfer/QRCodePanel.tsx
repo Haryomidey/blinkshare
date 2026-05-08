@@ -8,7 +8,7 @@ interface QRCodePanelProps {
 export const QRCodePanel = ({ value }: QRCodePanelProps) => {
     return (
         <div className="flex flex-col items-center">
-            <Card className="p-8 aspect-square flex items-center justify-center bg-white border-2 border-black max-w-[280px]">
+            <Card className="p-8 aspect-square flex items-center justify-center bg-white border-2 border-black max-w-70">
                 <div className="relative">
                     {/* Simulated QR Code */}
                     <QrCode className="w-48 h-48 text-black" strokeWidth={1} />
