@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { formatFileSize, formatDate } from '@/lib/formatters.ts';
 import { cn } from '@/lib/utils.ts';
+import type { Transfer } from '@/types/transfer.ts';
 
 type TransferFilter = 'all' | 'sent' | 'received' | 'completed' | 'failed';
 
@@ -16,7 +17,7 @@ const filterOptions: Array<{ label: string; value: TransferFilter }> = [
 ];
 
 interface TransferHistoryListProps {
-    transfers: any[];
+    transfers: Transfer[];
 }
 
 export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => {
@@ -43,6 +44,7 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
 
         return transfers.filter((tx) => {
             const deviceName = tx.type === 'sent' ? tx.receiver : tx.sender;
+            const transferDate = tx.createdAt;
             const searchableText = [
                 tx.id,
                 tx.name,
@@ -50,7 +52,7 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
                 tx.type,
                 deviceName,
                 formatFileSize(tx.size),
-                formatDate(tx.date),
+                formatDate(transferDate),
             ].join(' ').toLowerCase();
 
             const matchesSearch = query.length === 0 || searchableText.includes(query);
@@ -154,9 +156,9 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
                                             <div className="min-w-0 space-y-2">
                                                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                                                     <p className="max-w-full truncate text-sm font-bold text-black sm:max-w-[260px]">{tx.name}</p>
-                                                    <Badge variant={tx.status === 'completed' ? 'success' : 'error'}>
-                                                        {tx.status}
-                                                    </Badge>
+                                                <Badge variant={tx.status === 'completed' ? 'success' : tx.status === 'failed' || tx.status === 'cancelled' ? 'error' : 'outline'}>
+                                                    {tx.status}
+                                                </Badge>
                                                 </div>
                                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-neutral-500">
                                                     <span className="flex items-center gap-1">
@@ -164,7 +166,7 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
                                                         {formatFileSize(tx.size)}
                                                     </span>
                                                     <span>{tx.type === 'sent' ? `To ${tx.receiver}` : `From ${tx.sender}`}</span>
-                                                    <span>{formatDate(tx.date)}</span>
+                                                    <span>{formatDate(tx.createdAt)}</span>
                                                 </div>
                                             </div>
                                             <p className="shrink-0 text-[10px] font-mono text-neutral-400 uppercase sm:text-right">{tx.id}</p>

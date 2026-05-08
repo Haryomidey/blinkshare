@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Camera, Keyboard, ArrowRight, Zap, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
@@ -8,15 +8,18 @@ import { QRScannerPanel } from '@/components/transfer/QRScannerPanel.tsx';
 import { FileDropzone } from '@/components/transfer/FileDropzone.tsx';
 import { FileQueue } from '@/components/transfer/FileQueue.tsx';
 import { Input } from '@/components/ui/Input.tsx';
-import { generateId } from '@/lib/formatters.ts';
+import { api } from '@/services/api.ts';
 
 type SendState = 'initial' | 'scanning' | 'manual' | 'files';
 
 export default function Send() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [state, setState] = useState<SendState>('initial');
     const [files, setFiles] = useState<File[]>([]);
-    const [pairingCode, setPairingCode] = useState('');
+    const [pairingCode, setPairingCode] = useState(searchParams.get('session') ?? '');
+    const [isCreatingTransfer, setIsCreatingTransfer] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleFilesAdded = (newFiles: File[]) => {
         setFiles(prev => [...prev, ...newFiles]);
@@ -26,10 +29,24 @@ export default function Send() {
         setFiles(prev => prev.filter((_, i) => i !== index));
     };
 
-    const handleConnect = () => {
-        const sessionId = generateId();
-        // In a real app, logic to start session with WebRTC would go here
-        navigate(`/app/session/${sessionId}`, { state: { files: files.map(f => ({ name: f.name, size: f.size, progress: 0, status: 'waiting' })) } });
+    const handleConnect = async () => {
+        if (files.length === 0) return;
+
+        setIsCreatingTransfer(true);
+        setError(null);
+
+        try {
+            const transfer = await api.createTransfer({
+                files: files.map((file) => ({ name: file.name, size: file.size })),
+                pairingCode: pairingCode.trim() || undefined,
+            });
+
+            navigate(`/app/session/${transfer.id}`);
+        } catch (requestError) {
+            setError(requestError instanceof Error ? requestError.message : 'Unable to start transfer');
+        } finally {
+            setIsCreatingTransfer(false);
+        }
     };
 
     return (
@@ -39,6 +56,7 @@ export default function Send() {
                     <Badge className="mb-4">Send</Badge>
                     <h1 className="text-4xl font-bold tracking-tighter text-black">Send Files</h1>
                     <p className="text-neutral-500 mt-2">Choose your files, then pair with the device that should receive them.</p>
+                    {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
                 </div>
                 {state !== 'initial' && (
                     <Button variant="ghost" size="sm" onClick={() => setState('initial')}>
@@ -105,7 +123,7 @@ export default function Send() {
                                 onChange={(e) => setPairingCode(e.target.value)}
                                 className="font-mono uppercase text-lg"
                             />
-                            <Button className="w-full" onClick={() => {}}>
+                            <Button className="w-full" onClick={() => setState('files')}>
                                 Connect Device
                             </Button>
                             <p className="text-xs text-center text-neutral-400 font-medium leading-relaxed">
@@ -132,6 +150,7 @@ export default function Send() {
                                 size="lg" 
                                 className="w-full relative overflow-hidden group shadow-xl"
                                 onClick={handleConnect}
+                                isLoading={isCreatingTransfer}
                             >
                                 <span className="relative z-10 flex items-center gap-2">
                                     Start Transfer

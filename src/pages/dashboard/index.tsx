@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
-import { mockTransfers, mockStats } from '@/data/mockTransfers.ts';
 import { TransferHistoryList } from '@/components/transfer/TransferHistoryList.tsx';
 import { formatFileSize, formatSpeed } from '@/lib/formatters.ts';
 import { motion } from 'motion/react';
+import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers.ts';
 
 export default function Dashboard() {
+    const { transfers, stats, isLoading, error } = useRealtimeTransfers();
+
     return (
         <div className="space-y-12 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Dashboard Header */}
@@ -86,10 +88,10 @@ export default function Dashboard() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[
-                        { label: 'Shares Sent', value: mockStats.totalSent, icon: Send },
-                        { label: 'Shares Received', value: mockStats.totalReceived, icon: Download },
-                        { label: 'Total Volume', value: formatFileSize(mockStats.totalTransferred), icon: Share2 },
-                        { label: 'Average Speed', value: formatSpeed(mockStats.averageSpeed), icon: Zap },
+                        { label: 'Shares Sent', value: stats.totalSent, icon: Send },
+                        { label: 'Shares Received', value: stats.totalReceived, icon: Download },
+                        { label: 'Total Volume', value: formatFileSize(stats.totalTransferred), icon: Share2 },
+                        { label: 'Average Speed', value: formatSpeed(stats.averageSpeed), icon: Zap },
                     ].map((stat, i) => (
                     <motion.div 
                         key={i}
@@ -114,6 +116,12 @@ export default function Dashboard() {
                 </div>
             </div>
 
+            {error && (
+                <Card className="p-4 border-red-100 bg-red-50 text-sm text-red-700">
+                    {error}. Make sure the backend is running on port 4000.
+                </Card>
+            )}
+
             {/* Recent Activity */}
             <div className="space-y-8">
                 <div className="flex items-center justify-between border-b border-neutral-100 pb-6">
@@ -127,7 +135,11 @@ export default function Dashboard() {
                         </Button>
                     </Link>
                 </div>
-                <TransferHistoryList transfers={mockTransfers.slice(0, 3)} />
+                {isLoading ? (
+                    <Card className="p-8 text-sm text-neutral-500">Loading transfers...</Card>
+                ) : (
+                    <TransferHistoryList transfers={transfers.slice(0, 3)} />
+                )}
             </div>
         </div>
     );

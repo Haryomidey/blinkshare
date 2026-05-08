@@ -1,45 +1,49 @@
-import { useState, useEffect } from 'react';
-import { Smartphone, Download, Copy, RefreshCw, Loader2, Share2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Copy, RefreshCw, Loader2, Share2, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { QRCodePanel } from '@/components/transfer/QRCodePanel.tsx';
-import { generateId } from '@/lib/formatters.ts';
+import { useReceiveSession } from '@/hooks/useReceiveSession.ts';
 
 export default function Receive() {
-    const [sessionId, setSessionId] = useState(generateId());
-    const [isWaiting, setIsWaiting] = useState(true);
-
-    const refreshSession = () => {
-        setSessionId(generateId());
-    };
+    const navigate = useNavigate();
+    const { session, isLoading, error, refresh } = useReceiveSession();
 
     const copyInviteLink = () => {
-        const url = `${window.location.origin}/app/send?session=${sessionId}`;
+        if (!session) return;
+        const url = `${window.location.origin}/app/send?session=${session.code}`;
         navigator.clipboard.writeText(url);
-        // Toast notification would be nice here
     };
+
+    useEffect(() => {
+        if (session?.status === 'paired' && session.transferId) {
+            navigate(`/app/session/${session.transferId}`);
+        }
+    }, [navigate, session?.status, session?.transferId]);
 
     return (
         <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
-                    <Badge className="mb-4">Receive Module</Badge>
+                    <Badge className="mb-4">Receive</Badge>
                     <h1 className="text-4xl font-bold tracking-tighter text-black">Ready to Receive</h1>
-                    <p className="text-neutral-500 mt-2">Open this screen on the receiving device to start pairing.</p>
+                    <p className="text-neutral-500 mt-2">Share this code or invite link with the sender.</p>
+                    {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
                 </div>
             </header>
 
             <div className="grid md:grid-cols-2 gap-12 pt-8">
                 <div className="space-y-12">
-                    <QRCodePanel value={sessionId} />
+                    <QRCodePanel value={session?.code ?? 'Loading...'} />
                     
                     <div className="grid grid-cols-2 gap-4">
-                        <Button variant="secondary" onClick={copyInviteLink} className="flex-1">
+                        <Button variant="secondary" onClick={copyInviteLink} className="flex-1" disabled={!session}>
                             <Copy className="w-4 h-4 mr-2" />
                             Invite Link
                         </Button>
-                        <Button variant="secondary" onClick={refreshSession} className="flex-1">
+                        <Button variant="secondary" onClick={refresh} className="flex-1" isLoading={isLoading}>
                             <RefreshCw className="w-4 h-4 mr-2" />
                             New Session
                         </Button>
@@ -49,11 +53,17 @@ export default function Receive() {
                 <div className="space-y-8">
                     <Card className="p-8 border-2 border-black flex flex-col items-center text-center">
                         <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mb-6 animate-pulse border border-neutral-100">
-                            <Loader2 className="w-8 h-8 text-black animate-spin" strokeWidth={1} />
+                            {session?.status === 'paired' ? (
+                                <CheckCircle2 className="w-8 h-8 text-black" strokeWidth={1.5} />
+                            ) : (
+                                <Loader2 className="w-8 h-8 text-black animate-spin" strokeWidth={1} />
+                            )}
                         </div>
-                        <h3 className="text-lg font-bold text-black mb-2 uppercase tracking-tight">Searching for Sender...</h3>
+                        <h3 className="text-lg font-bold text-black mb-2 uppercase tracking-tight">
+                            {session?.status === 'paired' ? 'Sender Connected' : 'Waiting for Sender'}
+                        </h3>
                         <p className="text-sm text-neutral-500 max-w-xs">
-                            Keep this window open. Once a sender scans the QR code or enters your session ID, a direct P2P link will be established.
+                            Keep this page open. You will move to the transfer screen as soon as the sender connects.
                         </p>
                     </Card>
 
