@@ -16,7 +16,7 @@ export const Hero = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="mb-5 text-[12vw] font-bold leading-[1] tracking-tight text-black sm:mb-7 sm:text-[10vw] md:text-[64px] lg:text-[72px]"
+                    className="mb-5 text-[12vw] font-bold leading-none tracking-tight text-black sm:mb-7 sm:text-[10vw] md:text-[54px] lg:text-[62px]"
                 >
                     NO CLOUDS.<br />
                     JUST DIRECT SPEED.
@@ -26,7 +26,7 @@ export const Hero = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.4 }}
-                    className="mx-auto mb-8 max-w-lg text-xs leading-relaxed text-neutral-500 sm:text-sm md:mb-10 md:text-base lg:text-lg"
+                    className="mx-auto mb-8 max-w-lg text-xs leading-relaxed text-neutral-500 sm:text-sm md:mb-10 md:text-base"
                 >
                     Transfer massive files browser-to-browser instantly. No accounts, no uploads, no storage limits. Encrypted and completely peer-to-peer.
                 </motion.p>
