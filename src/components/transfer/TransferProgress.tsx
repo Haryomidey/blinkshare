@@ -152,7 +152,7 @@ export const TransferProgress = ({
                     <div>
                         <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400">Share Queue</h3>
                         <p className="mt-1 text-xs text-neutral-500">
-                            Files are sent directly between the paired browsers. Keep both pages open until the queue finishes.
+                            Keep both pages open until sharing finishes.
                         </p>
                     </div>
                     {isSending && (
