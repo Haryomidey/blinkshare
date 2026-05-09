@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Camera, Keyboard, ArrowRight, Zap, RefreshCw, Info, CheckCircle2 } from 'lucide-react';
+import { Camera, Keyboard, ArrowRight, RefreshCw, Info, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
 import { Badge } from '@/components/ui/Badge.tsx';
 import { QRScannerPanel } from '@/components/transfer/QRScannerPanel.tsx';
-import { FileDropzone } from '@/components/transfer/FileDropzone.tsx';
-import { FileQueue } from '@/components/transfer/FileQueue.tsx';
 import { api } from '@/services/api.ts';
 
 type SendState = 'initial' | 'scanning' | 'manual' | 'files';
@@ -21,44 +19,11 @@ export default function Send() {
     const [searchParams] = useSearchParams();
     const inviteCode = searchParams.get('session') ?? '';
     const [state, setState] = useState<SendState>(inviteCode ? 'manual' : 'initial');
-    const [files, setFiles] = useState<File[]>([]);
     const [pairingCode, setPairingCode] = useState(getPairingSuffix(inviteCode));
     const [isCreatingTransfer, setIsCreatingTransfer] = useState(false);
     const [isPairing, setIsPairing] = useState(false);
     const [isPaired, setIsPaired] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    const handleFilesAdded = (newFiles: File[]) => {
-        setFiles(prev => [...prev, ...newFiles]);
-    };
-
-    const handleRemoveFile = (index: number) => {
-        setFiles(prev => prev.filter((_, i) => i !== index));
-    };
-
-    const handleConnect = async () => {
-        if (files.length === 0) return;
-        if (!isPaired || !pairingCode.trim()) {
-            setError('Connect to a receiving device before starting the transfer.');
-            return;
-        }
-
-        setIsCreatingTransfer(true);
-        setError(null);
-
-        try {
-            const transfer = await api.createTransfer({
-                files: files.map((file) => ({ name: file.name, size: file.size })),
-                pairingCode: getPairingCode(pairingCode),
-            });
-
-            navigate(`/app/session/${transfer.id}`, { state: { role: 'sender', files } });
-        } catch (requestError) {
-            setError(requestError instanceof Error ? requestError.message : 'Unable to start transfer');
-        } finally {
-            setIsCreatingTransfer(false);
-        }
-    };
 
     const handlePairDevice = async (codeOverride?: string) => {
         const code = getPairingSuffix(codeOverride ?? pairingCode);
@@ -69,6 +34,7 @@ export default function Send() {
         }
 
         setIsPairing(true);
+        setIsCreatingTransfer(true);
         setError(null);
         setPairingCode(code);
 
@@ -80,11 +46,16 @@ export default function Send() {
             }
 
             setIsPaired(true);
-            setState('files');
+            const transfer = await api.createTransfer({
+                files: [],
+                pairingCode: getPairingCode(code),
+            });
+            navigate(`/app/session/${transfer.id}`, { state: { role: 'sender', files: [] } });
         } catch (requestError) {
             setError(requestError instanceof Error ? requestError.message : 'Unable to connect to that receive code');
         } finally {
             setIsPairing(false);
+            setIsCreatingTransfer(false);
         }
     };
 
@@ -179,7 +150,7 @@ export default function Send() {
                                     />
                                 </div>
                             </div>
-                            <Button className="w-full" onClick={() => void handlePairDevice()} isLoading={isPairing}>
+                            <Button className="w-full" onClick={() => void handlePairDevice()} isLoading={isPairing || isCreatingTransfer}>
                                 Connect Device
                             </Button>
                             <p className="text-xs text-center text-neutral-400 font-medium leading-relaxed">
@@ -210,44 +181,19 @@ export default function Send() {
                         <h2 className="font-bold text-black uppercase tracking-tight">Choose Files</h2>
                     </div>
 
-                    <FileDropzone onFilesAdded={handleFilesAdded} selectedFiles={files} />
-
-                    {!isPaired && (
-                        <div className="flex gap-3 rounded-sm border border-neutral-200 bg-neutral-50 p-4">
-                            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-black text-white">
-                                <Info className="h-4 w-4" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-black">Pair a receiver first</p>
-                                <p className="mt-1 text-xs leading-relaxed text-neutral-500">
-                                    Open Receive on the other device, then scan its QR code or enter its pairing code.
-                                </p>
-                            </div>
+                    <div className="flex gap-3 rounded-sm border border-neutral-200 bg-neutral-50 p-4">
+                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-black text-white">
+                            <Info className="h-4 w-4" />
                         </div>
-                    )}
-                    
-                    <FileQueue files={files} onRemove={handleRemoveFile} />
-
-                    {files.length > 0 && (
-                        <div className="pt-8">
-                            <Button 
-                                size="lg" 
-                                className="w-full relative overflow-hidden group shadow-xl"
-                                onClick={handleConnect}
-                                isLoading={isCreatingTransfer}
-                                disabled={!isPaired}
-                            >
-                                <span className="relative z-10 flex items-center gap-2">
-                                    Start Transfer
-                                    <Zap className="w-5 h-5 fill-white" />
-                                </span>
-                                <div className="absolute top-0 right-0 w-32 h-full bg-white/10 skew-x-[45deg] translate-x-16 group-hover:translate-x-0 transition-transform duration-500" />
-                            </Button>
-                            <p className="text-center text-xs mt-4 text-neutral-400 font-medium leading-relaxed">
-                                Keep this tab open until the transfer finishes.
+                        <div>
+                            <p className="text-sm font-bold text-black">{isPaired ? 'Opening shared session' : 'Pair a receiver first'}</p>
+                            <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+                                {isPaired
+                                    ? 'Both devices can add files from the next screen.'
+                                    : 'Open Receive on the other device, then scan its QR code or enter its pairing code.'}
                             </p>
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -24,7 +24,7 @@ export const QRCodePanel = ({ value }: QRCodePanelProps) => {
 
     return (
         <div className="flex w-full min-w-0 flex-col items-center">
-            <Card className="aspect-square w-full max-w-[17.5rem] border-2 border-black bg-white p-5 sm:p-7">
+            <Card className="aspect-square w-full max-w-[62vw] border-2 border-black bg-white p-4 sm:max-w-[17.5rem] sm:p-7">
                 <div
                     className="grid h-full w-full bg-white p-[8%]"
                     style={{
@@ -45,10 +45,10 @@ export const QRCodePanel = ({ value }: QRCodePanelProps) => {
                     )}
                 </div>
             </Card>
-            <div className="mt-6 text-center">
-                <p className="text-sm font-medium text-neutral-400 uppercase tracking-widest mb-1">Session ID</p>
+            <div className="mt-4 text-center sm:mt-6">
+                <p className="mb-1 text-xs font-medium uppercase tracking-widest text-neutral-400 sm:text-sm">Session ID</p>
                 <div className="flex min-w-0 items-center justify-center gap-2">
-                    <p className="min-w-0 break-all text-xl font-bold tracking-tight text-black sm:text-2xl">{value}</p>
+                    <p className="min-w-0 break-all text-lg font-bold tracking-tight text-black sm:text-2xl">{value}</p>
                     <Button
                         type="button"
                         variant="ghost"

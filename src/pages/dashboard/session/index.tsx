@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge.tsx';
 import { Modal } from '@/components/ui/Modal.tsx';
 import { TransferProgress } from '@/components/transfer/TransferProgress.tsx';
 import { ConnectionStatus } from '@/components/transfer/ConnectionStatus.tsx';
+import { FileDropzone } from '@/components/transfer/FileDropzone.tsx';
 import { useRealtimeTransfer } from '@/hooks/useRealtimeTransfer.ts';
 import { useWebRTCFileTransfer } from '@/hooks/useWebRTCFileTransfer.ts';
 import { api } from '@/services/api.ts';
@@ -43,7 +44,8 @@ export default function TransferSession() {
         (transfer.bytesTransferred ?? 0) >= transfer.size &&
         transfer.files.every((file) => file.progress >= 100 || file.status === 'completed')
     );
-    const displayStatus = isTransferFullyShared ? transfer?.status : 'transferring';
+    const hasFiles = Boolean(transfer?.files.length);
+    const displayStatus = !hasFiles ? transfer?.status : isTransferFullyShared ? transfer?.status : 'transferring';
     const displaySpeed = displayStatus === 'completed' ? 0 : transfer?.speed ?? 0;
 
     const timeLeft = useMemo(() => {
@@ -64,11 +66,16 @@ export default function TransferSession() {
         ? 'Receiver is paired. Waiting for them to join the transfer screen...'
         : 'Waiting for sender to open the transfer connection...';
 
-    const handleAddFiles = async (files: FileList | null) => {
+    const handleAddFiles = async (files: FileList | File[] | null) => {
         const selectedFiles = Array.from(files ?? []);
         if (selectedFiles.length === 0) return;
 
         setFileError(null);
+        if (!canSend) {
+            setFileError('Both devices must be connected before files can be shared.');
+            return;
+        }
+
         try {
             await addFiles(selectedFiles);
         } catch (requestError) {
@@ -140,21 +147,39 @@ export default function TransferSession() {
                                 </div>
                             </Card>
                         )}
-                        <TransferProgress 
-                            files={transfer.files}
-                            overallProgress={displayProgress}
-                            bytesTransferred={transfer.bytesTransferred ?? 0}
-                            totalBytes={transfer.size}
-                            speed={displaySpeed}
-                            timeLeft={timeLeft}
-                            isCompleted={isCompleted}
-                            isConnected={isConnected}
-                            isPaused={isPaused}
-                            isSending={isSending}
-                            onPause={pauseUploads}
-                            onRemoveFile={(fileId) => void removeFile(fileId)}
-                            onResume={resumeUploads}
-                        />
+                        {!hasFiles ? (
+                            <Card className="border-2 border-black p-5 sm:p-8">
+                                <div className="mb-6">
+                                    <h3 className="text-xl font-bold tracking-tight text-black sm:text-2xl">Add files to share</h3>
+                                    <p className="mt-2 text-sm leading-relaxed text-neutral-500">
+                                        Both connected devices can add files here. Transfers start as soon as the peer connection is ready.
+                                    </p>
+                                </div>
+                                <FileDropzone onFilesAdded={(selectedFiles) => void handleAddFiles(selectedFiles)} />
+                                {!canSend && (
+                                    <p className="mt-4 text-xs text-neutral-500">
+                                        Waiting for both devices to join this session before files can be sent.
+                                    </p>
+                                )}
+                                {fileError && <p className="mt-4 text-xs text-red-600">{fileError}</p>}
+                            </Card>
+                        ) : (
+                            <TransferProgress 
+                                files={transfer.files}
+                                overallProgress={displayProgress}
+                                bytesTransferred={transfer.bytesTransferred ?? 0}
+                                totalBytes={transfer.size}
+                                speed={displaySpeed}
+                                timeLeft={timeLeft}
+                                isCompleted={isCompleted}
+                                isConnected={isConnected}
+                                isPaused={isPaused}
+                                isSending={isSending}
+                                onPause={pauseUploads}
+                                onRemoveFile={(fileId) => void removeFile(fileId)}
+                                onResume={resumeUploads}
+                            />
+                        )}
                         
                         {isCompleted && (
                             <div className="mt-8 p-8 bg-neutral-50 rounded-sm border-2 border-black flex flex-col items-center text-center animate-in zoom-in-95 duration-500">

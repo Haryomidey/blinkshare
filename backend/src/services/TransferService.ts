@@ -74,7 +74,7 @@ export class TransferService {
 
         const transfer: Transfer = {
             id: createId('TX'),
-            name: files.length === 1 ? files[0].name : `${files.length} files`,
+            name: files.length === 0 ? 'Shared files' : files.length === 1 ? files[0].name : `${files.length} files`,
             size: files.reduce((total, file) => total + file.size, 0),
             status: 'waiting',
             type: input.type ?? 'sent',

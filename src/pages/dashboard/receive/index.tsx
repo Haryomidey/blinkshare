@@ -31,7 +31,7 @@ export default function Receive() {
     }, [navigate, session?.status, session?.transferId]);
 
     return (
-        <div className="mx-auto max-w-4xl min-w-0 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="mx-auto max-w-4xl min-w-0 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 sm:space-y-10">
             <header className="flex min-w-0 flex-col justify-between gap-4 md:flex-row md:items-end">
                 <div className="min-w-0">
                     <Badge className="mb-4">Receive</Badge>
@@ -41,7 +41,7 @@ export default function Receive() {
                 </div>
             </header>
 
-            <Card className="border-2 border-black p-4 md:hidden">
+            <Card className="border-2 border-black p-3 md:hidden">
                 <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-neutral-50 border border-neutral-100">
                         {isPaired ? (
@@ -57,11 +57,11 @@ export default function Receive() {
                 </div>
             </Card>
 
-            <div className="grid min-w-0 gap-10 pt-4 md:grid-cols-2 md:gap-12 md:pt-8">
-                <div className="min-w-0 space-y-10 md:space-y-12">
+            <div className="grid min-w-0 gap-6 pt-1 md:grid-cols-2 md:gap-12 md:pt-8">
+                <div className="min-w-0 space-y-5 sm:space-y-10 md:space-y-12">
                     <QRCodePanel value={session?.code ?? 'Loading...'} />
                     
-                    <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                    <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4">
                         <Button variant="secondary" onClick={copyInviteLink} className="flex-1" disabled={!session}>
                             <Copy className="w-4 h-4 mr-2" />
                             Invite Link
