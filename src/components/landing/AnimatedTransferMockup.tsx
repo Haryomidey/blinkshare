@@ -4,20 +4,20 @@ import { Card } from '@/components/ui/Card.tsx';
 
 export const AnimatedTransferMockup = () => {
     return (
-        <section className="py-20 bg-white px-4 sm:py-24">
-            <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10 border-y border-neutral-100 py-20 sm:gap-12 sm:py-24">
+        <section className="min-w-0 overflow-hidden bg-white px-4 py-20 sm:py-24">
+            <div className="mx-auto flex max-w-5xl min-w-0 flex-col items-center justify-between gap-10 border-y border-neutral-100 py-16 sm:gap-12 sm:py-24 md:flex-row">
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="relative"
+                    className="relative w-full max-w-[280px]"
                 >
-                    <Card className="w-[280px] p-6 border-2 border-black shadow-2xl relative z-10">
+                    <Card className="relative z-10 w-full p-6 border-2 border-black shadow-2xl">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-white">
                                 <Laptop className="w-5 h-5" />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-[11px] font-bold uppercase tracking-tight sm:text-xs">Main Workstation</p>
                                 <p className="text-[10px] text-neutral-400">Connected</p>
                             </div>
@@ -48,7 +48,7 @@ export const AnimatedTransferMockup = () => {
                             ))}
                         </div>
                     </Card>
-                    <div className="absolute top-10 -left-10 w-full h-full bg-neutral-100 border border-neutral-200 rounded-sm -z-10" />
+                    <div className="absolute top-8 -left-4 h-full w-full rounded-sm border border-neutral-200 bg-neutral-100 -z-10 sm:top-10 sm:-left-10" />
                 </motion.div>
 
                 <div className="flex flex-col items-center gap-4">
@@ -66,14 +66,14 @@ export const AnimatedTransferMockup = () => {
                     initial={{ opacity: 0, x: 50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    className="relative"
+                    className="relative w-full max-w-[280px]"
                 >
-                    <Card className="w-[280px] p-6 border-2 border-black shadow-2xl relative z-10">
+                    <Card className="relative z-10 w-full p-6 border-2 border-black shadow-2xl">
                         <div className="flex items-center gap-3 mb-8">
                             <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
                                 <Smartphone className="w-5 h-5" />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-[11px] font-bold uppercase tracking-tight sm:text-xs">Mobile Device</p>
                                 <p className="text-[10px] text-neutral-400">Ready</p>
                             </div>
@@ -95,7 +95,7 @@ export const AnimatedTransferMockup = () => {
                             ))}
                         </div>
                     </Card>
-                    <div className="absolute top-10 -right-10 w-full h-full bg-neutral-100 border border-neutral-200 rounded-sm -z-10" />
+                    <div className="absolute top-8 -right-4 h-full w-full rounded-sm border border-neutral-200 bg-neutral-100 -z-10 sm:top-10 sm:-right-10" />
                 </motion.div>
             </div>
         </section>

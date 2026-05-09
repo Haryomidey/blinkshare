@@ -12,13 +12,13 @@ export default function Landing() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
-        <div className="bg-white selection:bg-black selection:text-white overflow-x-hidden">
-            <nav className="fixed top-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md border-b border-neutral-100 z-50 px-4 md:px-8 flex items-center justify-between">
-                <div className="flex items-center gap-2">
+        <div className="min-w-0 overflow-x-hidden bg-white selection:bg-black selection:text-white">
+            <nav className="fixed top-0 left-0 right-0 z-50 flex h-20 min-w-0 items-center justify-between gap-4 border-b border-neutral-100 bg-white/80 px-4 backdrop-blur-md md:px-8">
+                <div className="flex min-w-0 items-center gap-2">
                     <div className="w-8 h-8 bg-black rounded-sm flex items-center justify-center">
                         <Zap size={16} className="text-white bg-black" fill="white" />
                     </div>
-                    <span className="text-lg font-bold tracking-tight sm:text-xl">BlinkShare</span>
+                    <span className="min-w-0 truncate text-lg font-bold tracking-tight sm:text-xl">BlinkShare</span>
                 </div>
                 
                 {/* Desktop Nav */}
@@ -45,7 +45,7 @@ export default function Landing() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed inset-0 bg-white z-[49] flex flex-col items-center justify-center gap-8 p-8 md:hidden"
+                        className="fixed inset-0 z-[49] flex min-w-0 flex-col items-center justify-center gap-8 overflow-y-auto bg-white p-8 md:hidden"
                     >
                         <a 
                             href="#features" 

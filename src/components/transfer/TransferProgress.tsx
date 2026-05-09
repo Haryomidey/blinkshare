@@ -75,7 +75,7 @@ export const TransferProgress = ({
 
     return (
         <div className="space-y-8">
-            <div className="relative overflow-hidden rounded-sm border border-black bg-black p-5 text-white shadow-2xl sm:p-8 lg:p-10">
+            <div className="relative min-w-0 overflow-hidden rounded-sm border border-black bg-black p-5 text-white shadow-2xl sm:p-8 lg:p-10">
                 {/* Decorative Background Elements */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                 
@@ -90,16 +90,16 @@ export const TransferProgress = ({
                                 {formatFileSize(bytesTransferred)} of {formatFileSize(totalBytes)}
                             </p>
                             {!isCompleted && activeFile && (
-                                <p className="mt-2 max-w-xs truncate text-xs text-neutral-400">
+                                <p className="mt-2 max-w-full truncate text-xs text-neutral-400 sm:max-w-xs">
                                     Sharing {activeFile.name}
                                 </p>
                             )}
                         </div>
-                        <div className="text-left sm:text-right">
+                        <div className="min-w-0 text-left sm:text-right">
                             <p className="text-[10px] uppercase tracking-[0.1em] font-medium text-neutral-500 mb-1">Status</p>
-                            <div className="flex items-center gap-2 justify-end">
+                            <div className="flex min-w-0 items-center gap-2 sm:justify-end">
                                 <div className="h-2 w-2 rounded-full bg-white" />
-                                <span className="text-sm font-medium text-white/80">
+                                <span className="min-w-0 truncate text-sm font-medium text-white/80">
                                     {isCompleted ? 'Share Recorded' : isConnected ? 'Recording share...' : 'Waiting for receiver'}
                                 </span>
                             </div>
@@ -179,14 +179,14 @@ export const TransferProgress = ({
                         const canRemove = file.progress < 100 && file.status !== 'completed';
 
                         return (
-                        <div key={file.id} className="p-4 bg-white border border-neutral-100 rounded-sm flex items-center gap-4 group">
-                            <div className="w-10 h-10 bg-neutral-50 border border-neutral-100 rounded-sm flex items-center justify-center">
+                        <div key={file.id} className="p-3 sm:p-4 bg-white border border-neutral-100 rounded-sm flex items-center gap-3 sm:gap-4 group min-w-0">
+                            <div className="w-10 h-10 shrink-0 bg-neutral-50 border border-neutral-100 rounded-sm flex items-center justify-center">
                                 <FileIcon className="w-5 h-5 text-neutral-400" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-baseline mb-1">
-                                    <p className="text-sm font-medium text-black truncate">{file.name}</p>
-                                    <p className="text-xs text-neutral-400 font-mono">
+                                <div className="mb-1 grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
+                                    <p className="min-w-0 truncate text-sm font-medium text-black">{file.name}</p>
+                                    <p className="shrink-0 whitespace-nowrap text-xs text-neutral-400 font-mono">
                                         {formatFileSize(sharedSize)} / {formatFileSize(file.size)}
                                     </p>
                                 </div>

@@ -79,16 +79,16 @@ export default function TransferSession() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="flex items-center gap-4">
+        <div className="mx-auto max-w-4xl min-w-0 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <header className="flex min-w-0 flex-col justify-between gap-4 md:flex-row md:items-end">
+                <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                     <Link to="/app" className="p-2 hover:bg-neutral-100 rounded-full transition-colors">
                         <ArrowLeft className="w-6 h-6" />
                     </Link>
-                    <div>
-                        <div className="flex items-center gap-2 mb-2">
+                    <div className="min-w-0">
+                        <div className="mb-2 flex min-w-0 flex-wrap items-center gap-2">
                             <Badge>Active Session</Badge>
-                            <span className="text-[10px] font-mono text-neutral-400">ID: {sessionId}</span>
+                            <span className="min-w-0 truncate text-[10px] font-mono text-neutral-400">ID: {sessionId}</span>
                         </div>
                         <h1 className="text-3xl font-bold tracking-tighter text-black sm:text-4xl">Direct Share</h1>
                     </div>
@@ -123,8 +123,8 @@ export default function TransferSession() {
                     />
                 </div>
             ) : (
-                <div className="grid lg:grid-cols-3 gap-8 items-start">
-                    <div className="lg:col-span-2">
+                <div className="grid min-w-0 items-start gap-8 lg:grid-cols-3">
+                    <div className="min-w-0 lg:col-span-2">
                         {!isConnected && !isCompleted && (
                             <Card className="mb-6 border-black bg-neutral-50 p-4">
                                 <div className="flex items-start gap-3">
@@ -175,7 +175,7 @@ export default function TransferSession() {
                         )}
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="min-w-0 space-y-6">
                         <ConnectionStatus
                             status={connectionStatus}
                             deviceName={peerName}
@@ -241,7 +241,7 @@ export default function TransferSession() {
                             <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-white border border-neutral-200">
                                 <Info className="h-4 w-4 text-neutral-500" />
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-sm font-semibold text-black">Keep this tab open</p>
                                 <p className="mt-1 text-xs leading-relaxed text-neutral-500">
                                     The peer connection runs from this page. Leaving it will stop active transfers.
@@ -254,25 +254,25 @@ export default function TransferSession() {
 
             {transfer && (
                 <Modal isOpen={isReportOpen} onClose={() => setIsReportOpen(false)} title="Share Report">
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
+                    <div className="min-w-0 space-y-6">
+                        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div className="min-w-0">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Status</p>
-                                <p className="mt-1 text-sm font-medium text-black">{displayStatus}</p>
+                                <p className="mt-1 truncate text-sm font-medium text-black">{displayStatus}</p>
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Session ID</p>
-                                <p className="mt-1 text-sm font-mono text-black">{transfer.id}</p>
+                                <p className="mt-1 truncate text-sm font-mono text-black">{transfer.id}</p>
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Shared Size</p>
-                                <p className="mt-1 text-sm font-medium text-black">
+                                <p className="mt-1 truncate text-sm font-medium text-black">
                                     {formatFileSize(transfer.bytesTransferred ?? 0)} / {formatFileSize(transfer.size)}
                                 </p>
                             </div>
-                            <div>
+                            <div className="min-w-0">
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Created</p>
-                                <p className="mt-1 text-sm font-medium text-black">{formatDate(transfer.createdAt)}</p>
+                                <p className="mt-1 truncate text-sm font-medium text-black">{formatDate(transfer.createdAt)}</p>
                             </div>
                         </div>
 
@@ -285,9 +285,9 @@ export default function TransferSession() {
 
                         <div className="space-y-2">
                             {transfer.files.map((file) => (
-                                <div key={file.id} className="flex items-center justify-between gap-4 rounded-sm border border-neutral-100 p-3">
+                                <div key={file.id} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-sm border border-neutral-100 p-3">
                                     <p className="min-w-0 truncate text-sm font-medium text-black">{file.name}</p>
-                                    <p className="shrink-0 text-xs font-mono text-neutral-500">
+                                    <p className="shrink-0 whitespace-nowrap text-xs font-mono text-neutral-500">
                                         {formatFileSize(Math.round((file.progress / 100) * file.size))} / {formatFileSize(file.size)}
                                     </p>
                                 </div>

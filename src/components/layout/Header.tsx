@@ -57,17 +57,17 @@ export const Header = () => {
     }, []);
 
     return (
-        <header className="h-16 border-b border-neutral-100 bg-white flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
-            <div className="flex items-center gap-2 bg-neutral-50 border border-neutral-200 rounded-sm px-3 py-1.5 w-full max-w-[200px] md:max-w-md">
+        <header className="sticky top-0 z-30 flex h-16 min-w-0 items-center justify-between gap-3 border-b border-neutral-100 bg-white px-3 sm:px-4 md:px-8">
+            <div className="flex min-w-0 flex-1 items-center gap-2 rounded-sm border border-neutral-200 bg-neutral-50 px-3 py-1.5 md:max-w-md">
                 <Search className="w-4 h-4 text-neutral-400 shrink-0" />
                 <input
                     type="text"
                     placeholder="Search..."
-                    className="bg-transparent border-none text-xs focus:ring-0 w-full placeholder:text-neutral-400 outline-none"
+                    className="min-w-0 w-full bg-transparent border-none text-xs focus:ring-0 placeholder:text-neutral-400 outline-none"
                 />
             </div>
 
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex shrink-0 items-center gap-1 sm:gap-2 md:gap-4">
                 <div className="relative" ref={dropdownRef}>
                     <button 
                         onClick={() => setIsNotifyOpen(!isNotifyOpen)}
@@ -86,7 +86,7 @@ export const Header = () => {
                                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                className="absolute right-0 mt-2 w-80 bg-white border border-neutral-200 rounded-sm shadow-2xl overflow-hidden z-50 text-left"
+                                className="fixed left-3 right-3 top-[4.5rem] z-50 max-h-[calc(100vh-5.5rem)] overflow-hidden rounded-sm border border-neutral-200 bg-white text-left shadow-2xl sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80"
                             >
                                 <div className="p-4 border-b border-neutral-100 flex items-center justify-between bg-neutral-50/50">
                                     <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black">Notifications</h3>
@@ -94,25 +94,25 @@ export const Header = () => {
                                         <X size={14} />
                                     </button>
                                 </div>
-                                <div className="max-h-[min(280px,calc(100vh-9rem))] overflow-y-auto custom-scrollbar">
+                                <div className="max-h-[min(340px,calc(100vh-12rem))] overflow-y-auto custom-scrollbar">
                                     {notifications.length === 0 ? (
                                         <div className="p-8 text-center">
                                             <p className="text-sm font-bold text-black">No notifications yet</p>
                                             <p className="mt-1 text-xs text-neutral-500">Transfer updates will appear here.</p>
                                         </div>
                                     ) : notifications.map((note) => (
-                                        <div key={note.id} className="p-4 hover:bg-neutral-50 border-b border-neutral-50 flex gap-3 group transition-colors cursor-pointer text-left">
+                                        <div key={note.id} className="flex min-w-0 cursor-pointer gap-3 border-b border-neutral-50 p-4 text-left transition-colors hover:bg-neutral-50 group">
                                             <div className="mt-0.5 shrink-0">
                                                 <div className="w-8 h-8 rounded-sm bg-black flex items-center justify-center">
                                                     <note.icon size={14} className="text-white" />
                                                 </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex justify-between items-start mb-0.5">
-                                                    <p className="text-xs font-bold text-black">{note.title}</p>
-                                                    <span className="text-[9px] text-neutral-400 uppercase font-medium">{note.time}</span>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="mb-0.5 flex min-w-0 items-start justify-between gap-3">
+                                                    <p className="min-w-0 truncate text-xs font-bold text-black">{note.title}</p>
+                                                    <span className="shrink-0 text-[9px] text-neutral-400 uppercase font-medium">{note.time}</span>
                                                 </div>
-                                                <p className="text-[11px] text-neutral-500 leading-relaxed">{note.message}</p>
+                                                <p className="line-clamp-2 text-[11px] leading-relaxed text-neutral-500">{note.message}</p>
                                             </div>
                                         </div>
                                     ))}

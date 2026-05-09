@@ -23,7 +23,7 @@ export const ConnectionStatus = ({
             : 'Waiting for receiver to join the transfer...');
 
     return (
-        <Card className="flex flex-col items-center bg-white p-6 text-center shadow-xl border-2 border-black sm:p-8">
+        <Card className="flex min-w-0 flex-col items-center bg-white p-6 text-center shadow-xl border-2 border-black sm:p-8">
             <div className="relative mb-6">
                 <div className={cn(
                     "w-20 h-20 rounded-full border-2 flex items-center justify-center transition-all duration-500 sm:h-24 sm:w-24",
@@ -48,8 +48,8 @@ export const ConnectionStatus = ({
             </div>
             
             <p className="mb-2 text-[10px] font-bold uppercase tracking-[.3em] text-neutral-400">{label}</p>
-            <h3 className="text-xl font-bold tracking-tight text-black sm:text-2xl">{deviceName}</h3>
-            <p className="text-sm text-neutral-500 mt-2">
+            <h3 className="max-w-full truncate text-xl font-bold tracking-tight text-black sm:text-2xl">{deviceName}</h3>
+            <p className="mt-2 max-w-full text-sm text-neutral-500">
                 {statusMessage}
             </p>
         </Card>

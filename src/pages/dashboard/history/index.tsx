@@ -24,7 +24,7 @@ export default function HistoryPage() {
     }, [totalPages]);
 
     return (
-        <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="mx-auto max-w-5xl min-w-0 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <header>
                 <Badge className="mb-4">History</Badge>
                 <h1 className="text-3xl font-bold tracking-tighter text-black sm:text-4xl">Transfer History</h1>
@@ -51,20 +51,20 @@ export default function HistoryPage() {
                     }
                 />
             ) : (
-                <div className="space-y-12">
+                <div className="min-w-0 space-y-10 sm:space-y-12">
                     {/* Stats Summary */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-                        <div className="p-6 border border-neutral-100 rounded-sm sm:p-8">
+                    <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
+                        <div className="min-w-0 p-6 border border-neutral-100 rounded-sm sm:p-8">
                             <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-300 mb-2">Total Shares</p>
-                            <p className="font-mono text-2xl font-bold text-black sm:text-3xl">{stats.totalSent + stats.totalReceived}</p>
+                            <p className="truncate font-mono text-2xl font-bold text-black sm:text-3xl">{stats.totalSent + stats.totalReceived}</p>
                         </div>
-                        <div className="p-6 border border-neutral-100 rounded-sm sm:p-8">
+                        <div className="min-w-0 p-6 border border-neutral-100 rounded-sm sm:p-8">
                             <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-300 mb-2">Volume</p>
-                            <p className="font-mono text-2xl font-bold text-black sm:text-3xl">{formatFileSize(stats.totalTransferred)}</p>
+                            <p className="truncate font-mono text-2xl font-bold text-black sm:text-3xl">{formatFileSize(stats.totalTransferred)}</p>
                         </div>
-                        <div className="p-6 border border-neutral-100 rounded-sm sm:p-8">
+                        <div className="min-w-0 p-6 border border-neutral-100 rounded-sm sm:p-8">
                             <p className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-300 mb-2">Avg. Speed</p>
-                            <p className="font-mono text-2xl font-bold text-black sm:text-3xl">{formatSpeed(stats.averageSpeed)}</p>
+                            <p className="truncate font-mono text-2xl font-bold text-black sm:text-3xl">{formatSpeed(stats.averageSpeed)}</p>
                         </div>
                     </div>
 

@@ -50,39 +50,39 @@ export default function Settings() {
     };
 
     return (
-        <div className="max-w-5xl mx-auto py-12 px-4 md:px-0">
+        <div className="mx-auto max-w-5xl min-w-0 py-6 sm:py-10 md:py-12">
             <motion.header 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-16 text-center md:text-left"
+                className="mb-10 min-w-0 text-center md:mb-16 md:text-left"
             >
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div>
+                <div className="flex min-w-0 flex-col justify-between gap-6 md:flex-row md:items-end">
+                    <div className="min-w-0">
                         <Badge className="mb-4 bg-black text-white hover:bg-black border-none px-3">Settings</Badge>
                         <h1 className="mb-4 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl lg:text-5xl">App Preferences</h1>
                         <p className="max-w-xl text-sm text-neutral-500 sm:text-base lg:text-lg">
                             Manage how this device appears to others and how BlinkShare handles incoming transfers.
                         </p>
                     </div>
-                    <div className="flex items-center gap-3 bg-neutral-50 p-4 rounded-sm border border-neutral-100">
+                    <div className="flex min-w-0 items-center gap-3 bg-neutral-50 p-4 rounded-sm border border-neutral-100">
                         <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-neutral-200">
                             <Fingerprint className="w-6 h-6 text-neutral-800" />
                         </div>
-                        <div className="text-left">
+                        <div className="min-w-0 text-left">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Device ID</p>
-                            <p className="text-sm font-mono font-bold text-black">{settings.deviceId}</p>
+                            <p className="truncate text-sm font-mono font-bold text-black">{settings.deviceId}</p>
                         </div>
                     </div>
                 </div>
             </motion.header>
 
-            <div className="grid lg:grid-cols-12 gap-16">
+            <div className="grid min-w-0 gap-10 lg:grid-cols-12 lg:gap-16">
                 {/* Main Controls */}
-                <div className="lg:col-span-8 space-y-20">
+                <div className="min-w-0 space-y-12 lg:col-span-8 lg:space-y-20">
                     
                     {/* Identity Section */}
-                    <section className="space-y-8">
-                        <div className="flex items-center gap-4">
+                    <section className="min-w-0 space-y-8">
+                        <div className="flex min-w-0 items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center">
                                 <User className="w-5 h-5 text-white" />
                             </div>
@@ -92,8 +92,8 @@ export default function Settings() {
                             </div>
                         </div>
 
-                        <Card className="p-10 space-y-8 border-neutral-100 shadow-sm transition-all hover:shadow-md">
-                            <div className="grid md:grid-cols-2 gap-10 items-start">
+                        <Card className="min-w-0 space-y-8 border-neutral-100 p-5 shadow-sm transition-all hover:shadow-md sm:p-8 lg:p-10">
+                            <div className="grid min-w-0 items-start gap-6 md:grid-cols-2 md:gap-10">
                                 <div className="space-y-4">
                                     <Input 
                                         label="Display Name" 
@@ -117,8 +117,8 @@ export default function Settings() {
                     </section>
 
                     {/* Habits Section */}
-                    <section className="space-y-8">
-                        <div className="flex items-center gap-4">
+                    <section className="min-w-0 space-y-8">
+                        <div className="flex min-w-0 items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center">
                                 <Zap className="w-5 h-5 text-white" />
                             </div>
@@ -128,8 +128,8 @@ export default function Settings() {
                             </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <Card className="p-8 border-neutral-100 hover:border-black transition-all">
+                        <div className="grid min-w-0 gap-6 md:grid-cols-2">
+                            <Card className="min-w-0 p-6 border-neutral-100 hover:border-black transition-all sm:p-8">
                                 <Toggle 
                                     label="Auto-Accept Trusted Devices" 
                                     enabled={settings.autoAccept} 
@@ -144,7 +144,7 @@ export default function Settings() {
                                 </div>
                             </Card>
 
-                            <Card className="p-8 border-neutral-100 hover:border-black transition-all">
+                            <Card className="min-w-0 p-6 border-neutral-100 hover:border-black transition-all sm:p-8">
                                 <Toggle 
                                     label="Device Discovery" 
                                     enabled={settings.discovery} 
@@ -159,7 +159,7 @@ export default function Settings() {
                                 </div>
                             </Card>
 
-                            <Card className="p-8 border-neutral-100 hover:border-black transition-all">
+                            <Card className="min-w-0 p-6 border-neutral-100 hover:border-black transition-all sm:p-8">
                                 <Toggle
                                     label="Transfer Notifications"
                                     enabled={settings.notifyOnComplete}
@@ -176,8 +176,8 @@ export default function Settings() {
                     </section>
 
                     {/* Protocol Section */}
-                    <section className="space-y-8 pb-12">
-                        <div className="flex items-center gap-4">
+                    <section className="min-w-0 space-y-8 pb-12">
+                        <div className="flex min-w-0 items-center gap-4">
                             <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center">
                                 <Shield className="w-5 h-5 text-white" />
                             </div>
@@ -188,8 +188,8 @@ export default function Settings() {
                         </div>
 
                         <Card className="border-neutral-100 overflow-hidden divide-y divide-neutral-50">
-                            <div className="p-8 flex items-center justify-between gap-8 group">
-                                <div className="space-y-1">
+                            <div className="flex min-w-0 items-center justify-between gap-5 p-5 group sm:gap-8 sm:p-8">
+                                <div className="min-w-0 space-y-1">
                                     <h4 className="font-bold text-neutral-900">Secure Signaling</h4>
                                     <p className="text-sm text-neutral-500">Use encrypted signaling when setting up a transfer.</p>
                                 </div>
@@ -198,8 +198,8 @@ export default function Settings() {
                                     onChange={(val) => updateSetting('secureSignaling', val)} 
                                 />
                             </div>
-                            <div className="p-8 flex items-center justify-between gap-8">
-                                <div className="space-y-1">
+                            <div className="flex min-w-0 items-center justify-between gap-5 p-5 sm:gap-8 sm:p-8">
+                                <div className="min-w-0 space-y-1">
                                     <h4 className="font-bold text-neutral-900">Connection Optimization</h4>
                                     <p className="text-sm text-neutral-500">Adjust transfer settings automatically when the connection changes.</p>
                                 </div>
@@ -213,8 +213,8 @@ export default function Settings() {
                 </div>
 
                 {/* Sidebar Utilities */}
-                <div className="lg:col-span-4 space-y-8">
-                    <Card className="p-8 bg-neutral-900 text-white border-none shadow-2xl">
+                <div className="min-w-0 space-y-8 lg:col-span-4">
+                    <Card className="min-w-0 p-5 bg-neutral-900 text-white border-none shadow-2xl sm:p-8">
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.25em] text-neutral-500 mb-6">Maintenance</h4>
                         <div className="space-y-3">
                             {maintenanceMessage && (
@@ -250,7 +250,7 @@ export default function Settings() {
                         </div>
                     </Card>
 
-                    <Card className="p-10 bg-neutral-50 border-neutral-200 border-dashed">
+                    <Card className="min-w-0 p-8 bg-neutral-50 border-neutral-200 border-dashed sm:p-10">
                         <div className="text-center space-y-4">
                             <Smartphone className="w-8 h-8 text-neutral-300 mx-auto" />
                             <div>

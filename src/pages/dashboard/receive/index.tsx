@@ -12,6 +12,11 @@ export default function Receive() {
     const navigate = useNavigate();
     const { settings } = useAppSettings();
     const { session, isLoading, error, refresh } = useReceiveSession(settings.deviceName);
+    const isPaired = session?.status === 'paired';
+    const statusTitle = isPaired ? 'Sender Connected' : 'Waiting for Sender';
+    const statusDescription = isPaired
+        ? 'Sender is paired. You will move to the transfer screen when they start sharing files.'
+        : 'Keep this page open. You will move to the transfer screen when the sender starts the transfer.';
 
     const copyInviteLink = () => {
         if (!session) return;
@@ -26,9 +31,9 @@ export default function Receive() {
     }, [navigate, session?.status, session?.transferId]);
 
     return (
-        <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
+        <div className="mx-auto max-w-4xl min-w-0 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <header className="flex min-w-0 flex-col justify-between gap-4 md:flex-row md:items-end">
+                <div className="min-w-0">
                     <Badge className="mb-4">Receive</Badge>
                     <h1 className="text-3xl font-bold tracking-tighter text-black sm:text-4xl">Ready to Receive</h1>
                     <p className="mt-2 text-sm text-neutral-500 sm:text-base">Share this code or invite link with the sender.</p>
@@ -36,11 +41,27 @@ export default function Receive() {
                 </div>
             </header>
 
-            <div className="grid md:grid-cols-2 gap-12 pt-8">
-                <div className="space-y-12">
+            <Card className="border-2 border-black p-4 md:hidden">
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-neutral-50 border border-neutral-100">
+                        {isPaired ? (
+                            <CheckCircle2 className="h-5 w-5 text-black" strokeWidth={1.8} />
+                        ) : (
+                            <Loader2 className="h-5 w-5 animate-spin text-black" strokeWidth={1.4} />
+                        )}
+                    </div>
+                    <div className="min-w-0">
+                        <h3 className="truncate text-sm font-bold uppercase tracking-tight text-black">{statusTitle}</h3>
+                        <p className="mt-1 text-xs leading-relaxed text-neutral-500">{statusDescription}</p>
+                    </div>
+                </div>
+            </Card>
+
+            <div className="grid min-w-0 gap-10 pt-4 md:grid-cols-2 md:gap-12 md:pt-8">
+                <div className="min-w-0 space-y-10 md:space-y-12">
                     <QRCodePanel value={session?.code ?? 'Loading...'} />
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                         <Button variant="secondary" onClick={copyInviteLink} className="flex-1" disabled={!session}>
                             <Copy className="w-4 h-4 mr-2" />
                             Invite Link
@@ -52,22 +73,20 @@ export default function Receive() {
                     </div>
                 </div>
 
-                <div className="space-y-8">
-                    <Card className="p-8 border-2 border-black flex flex-col items-center text-center">
+                <div className="min-w-0 space-y-8">
+                    <Card className="hidden p-8 border-2 border-black md:flex flex-col items-center text-center">
                         <div className="w-16 h-16 bg-neutral-50 rounded-full flex items-center justify-center mb-6 animate-pulse border border-neutral-100">
-                            {session?.status === 'paired' ? (
+                            {isPaired ? (
                                 <CheckCircle2 className="w-8 h-8 text-black" strokeWidth={1.5} />
                             ) : (
                                 <Loader2 className="w-8 h-8 text-black animate-spin" strokeWidth={1} />
                             )}
                         </div>
                         <h3 className="text-lg font-bold text-black mb-2 uppercase tracking-tight">
-                            {session?.status === 'paired' ? 'Sender Connected' : 'Waiting for Sender'}
+                            {statusTitle}
                         </h3>
                         <p className="text-sm text-neutral-500 max-w-xs">
-                            {session?.status === 'paired'
-                                ? 'Sender is paired. Keep this page open while they choose files.'
-                                : 'Keep this page open. You will move to the transfer screen when the sender starts the transfer.'}
+                            {statusDescription}
                         </p>
                     </Card>
 

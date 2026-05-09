@@ -8,8 +8,8 @@ interface ToggleProps {
 
 export const Toggle = ({ enabled, onChange, label }: ToggleProps) => {
     return (
-        <div className="flex items-center justify-between py-2">
-            {label && <span className="text-sm font-medium text-neutral-700">{label}</span>}
+        <div className="flex min-w-0 items-center justify-between gap-4 py-2">
+            {label && <span className="min-w-0 text-sm font-medium text-neutral-700">{label}</span>}
             <button
                 type="button"
                 onClick={() => onChange(!enabled)}

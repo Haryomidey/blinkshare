@@ -5,18 +5,18 @@ import { Link } from 'react-router-dom';
 
 export const Hero = () => {
     return (
-        <section className="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden px-4">
+        <section className="relative flex min-h-[90vh] min-w-0 flex-col items-center justify-center overflow-hidden px-4 pb-12 pt-24">
             <div className="absolute inset-0 z-0">
-                <div className="absolute top-1/4 left-1/4 w-[50vh] h-[50vh] bg-neutral-100 rounded-full blur-[120px] opacity-60" />
-                <div className="absolute bottom-1/4 right-1/4 w-[40vh] h-[40vh] bg-neutral-100 rounded-full blur-[100px] opacity-40" />
+                <div className="absolute left-1/4 top-1/4 h-[50vh] max-h-[32rem] w-[50vh] max-w-[32rem] rounded-full bg-neutral-100 opacity-60 blur-[120px]" />
+                <div className="absolute bottom-1/4 right-1/4 h-[40vh] max-h-[28rem] w-[40vh] max-w-[28rem] rounded-full bg-neutral-100 opacity-40 blur-[100px]" />
             </div>
 
-            <div className="relative z-10 text-center max-w-4xl mx-auto">
+            <div className="relative z-10 mx-auto max-w-4xl min-w-0 text-center">
                 <motion.h1
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="mb-5 text-[12vw] font-bold leading-none tracking-tight text-black sm:mb-7 sm:text-[10vw] md:text-[54px] lg:text-[62px]"
+                    className="mb-5 text-5xl font-bold leading-none tracking-tight text-black sm:mb-7 sm:text-[10vw] md:text-[54px] lg:text-[62px]"
                 >
                     NO CLOUDS.<br />
                     JUST DIRECT SPEED.
@@ -35,7 +35,7 @@ export const Hero = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.6 }}
-                    className="flex flex-row flex-nowrap items-center justify-center gap-3 sm:gap-4"
+                    className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
                 >
                     <Link to="/app/send">
                         <Button size="lg" className="group px-3 py-2.5 text-xs sm:px-8 sm:py-4 sm:text-lg">

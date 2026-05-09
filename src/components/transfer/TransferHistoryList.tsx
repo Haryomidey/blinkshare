@@ -68,9 +68,9 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
     if (transfers.length === 0) return null;
 
     return (
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 border-b border-neutral-100">
-                <h2 className="text-lg font-bold tracking-tight text-black sm:text-xl">Recent Transfers</h2>
+                <h2 className="min-w-0 text-lg font-bold tracking-tight text-black sm:text-xl">Recent Transfers</h2>
                 <div className="flex w-full flex-col gap-2 sm:flex-row md:w-auto">
                     <div className="flex min-w-0 flex-1 items-center gap-2 bg-neutral-50 border border-neutral-200 h-10 px-3 rounded-sm sm:h-9 sm:min-w-72 md:min-w-80 lg:min-w-96 py-3">
                         <Search className="w-4 h-4 text-neutral-400" />
@@ -81,7 +81,7 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
                             placeholder="Search..."
                         />
                     </div>
-                    <div ref={filterMenuRef} className="relative w-full sm:w-40 sm:shrink-0">
+                    <div ref={filterMenuRef} className="relative w-full min-w-0 sm:w-40 sm:shrink-0">
                         <button
                             type="button"
                             onClick={() => setIsFilterOpen((isOpen) => !isOpen)}
@@ -139,10 +139,10 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
                 <div className="grid gap-2">
                     {filteredTransfers.map((tx) => (
                         <div key={tx.id}>
-                            <Card hover className="p-4 group overflow-hidden">
-                                <div className="grid grid-cols-[48px_minmax(0,1fr)] items-start gap-4 sm:items-center">
+                            <Card hover className="p-3 group overflow-hidden sm:p-4">
+                                <div className="grid min-w-0 grid-cols-[40px_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[48px_minmax(0,1fr)] sm:items-center sm:gap-4">
                                     <div className={cn(
-                                        "w-12 h-12 rounded-sm border border-neutral-100 flex shrink-0 items-center justify-center transition-colors group-hover:bg-black group-hover:border-black",
+                                        "h-10 w-10 rounded-sm border border-neutral-100 flex shrink-0 items-center justify-center transition-colors group-hover:bg-black group-hover:border-black sm:h-12 sm:w-12",
                                         tx.status === 'completed' ? "bg-neutral-50" : "bg-neutral-50"
                                     )}>
                                         {tx.type === 'sent' ? (
@@ -154,22 +154,22 @@ export const TransferHistoryList = ({ transfers }: TransferHistoryListProps) => 
                                     <div className="flex-1 min-w-0">
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="min-w-0 space-y-2">
-                                                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                                                    <p className="max-w-full truncate text-sm font-bold text-black sm:max-w-65">{tx.name}</p>
-                                                <Badge variant={tx.status === 'completed' ? 'success' : tx.status === 'failed' || tx.status === 'cancelled' ? 'error' : 'outline'}>
-                                                    {tx.status}
-                                                </Badge>
+                                                <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                                                    <p className="min-w-0 truncate text-sm font-bold text-black">{tx.name}</p>
+                                                    <Badge variant={tx.status === 'completed' ? 'success' : tx.status === 'failed' || tx.status === 'cancelled' ? 'error' : 'outline'}>
+                                                        {tx.status}
+                                                    </Badge>
                                                 </div>
-                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-neutral-500">
-                                                    <span className="flex items-center gap-1">
-                                                        <FileText className="w-3 h-3" />
+                                                <div className="grid min-w-0 gap-1 text-xs text-neutral-500 sm:flex sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-2">
+                                                    <span className="flex min-w-0 items-center gap-1">
+                                                        <FileText className="h-3 w-3 shrink-0" />
                                                         {formatFileSize(tx.size)}
                                                     </span>
-                                                    <span>{tx.type === 'sent' ? `To ${tx.receiver}` : `From ${tx.sender}`}</span>
-                                                    <span>{formatDate(tx.createdAt)}</span>
+                                                    <span className="min-w-0 truncate">{tx.type === 'sent' ? `To ${tx.receiver}` : `From ${tx.sender}`}</span>
+                                                    <span className="min-w-0 truncate">{formatDate(tx.createdAt)}</span>
                                                 </div>
                                             </div>
-                                            <p className="shrink-0 text-[10px] font-mono text-neutral-400 uppercase sm:text-right">{tx.id}</p>
+                                            <p className="max-w-full truncate text-[10px] font-mono text-neutral-400 uppercase sm:shrink-0 sm:text-right">{tx.id}</p>
                                         </div>
                                     </div>
                                 </div>
