@@ -1,18 +1,44 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 import { Check, Copy } from 'lucide-react';
 import { Card } from '@/components/ui/Card.tsx';
 import { Button } from '@/components/ui/Button.tsx';
-import { createQrMatrix } from '@/lib/qrCode.ts';
 
 interface QRCodePanelProps {
     value: string;
 }
 
 export const QRCodePanel = ({ value }: QRCodePanelProps) => {
-    const matrix = useMemo(() => createQrMatrix(value), [value]);
+    const [qrDataUrl, setQrDataUrl] = useState('');
     const [copied, setCopied] = useState(false);
     const canCopy = value.trim().length > 0 && value !== 'Loading...';
     const shortCode = value.replace(/^BLINK-/i, '');
+
+    useEffect(() => {
+        if (!canCopy) {
+            setQrDataUrl('');
+            return;
+        }
+
+        let isMounted = true;
+        QRCode.toDataURL(value, {
+            errorCorrectionLevel: 'M',
+            margin: 4,
+            scale: 10,
+            color: {
+                dark: '#000000',
+                light: '#ffffff',
+            },
+        }).then((dataUrl) => {
+            if (isMounted) setQrDataUrl(dataUrl);
+        }).catch(() => {
+            if (isMounted) setQrDataUrl('');
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [canCopy, value]);
 
     const copySessionId = async () => {
         if (!canCopy) return;
@@ -24,26 +50,18 @@ export const QRCodePanel = ({ value }: QRCodePanelProps) => {
 
     return (
         <div className="flex w-full min-w-0 flex-col items-center">
-            <Card className="aspect-square w-full max-w-[62vw] border-2 border-black bg-white p-4 sm:max-w-[17.5rem] sm:p-7">
-                <div
-                    className="grid h-full w-full bg-white p-[8%]"
-                    style={{
-                        gridTemplateColumns: `repeat(${matrix.length}, minmax(0, 1fr))`,
-                        gridTemplateRows: `repeat(${matrix.length}, minmax(0, 1fr))`,
-                    }}
-                    role="img"
-                    aria-label={`QR code for session ${value}`}
-                >
-                    {matrix.flatMap((row, y) =>
-                        row.map((isDark, x) => (
-                            <span
-                                key={`${x}-${y}`}
-                                className={isDark ? 'bg-black' : 'bg-white'}
-                                aria-hidden="true"
-                            />
-                        ))
-                    )}
-                </div>
+            <Card className="aspect-square w-full max-w-[62vw] border-2 border-black bg-white p-3 sm:max-w-[17.5rem] sm:p-5">
+                {qrDataUrl ? (
+                    <img
+                        src={qrDataUrl}
+                        alt={`QR code for session ${value}`}
+                        className="h-full w-full object-contain"
+                    />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs font-medium text-neutral-400">
+                        Loading...
+                    </div>
+                )}
             </Card>
             <div className="mt-4 text-center sm:mt-6">
                 <p className="mb-1 text-xs font-medium uppercase tracking-widest text-neutral-400 sm:text-sm">Session ID</p>
