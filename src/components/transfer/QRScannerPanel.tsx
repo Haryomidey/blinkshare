@@ -155,7 +155,7 @@ export const QRScannerPanel = ({ onCodeDetected }: QRScannerPanelProps) => {
                     ref={videoRef}
                     muted
                     playsInline
-                    className="absolute inset-0 h-full w-full -scale-x-100 object-cover opacity-70"
+                    className="absolute inset-0 h-full w-full object-cover opacity-70"
                 />
                 <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.09),transparent_45%)]" />

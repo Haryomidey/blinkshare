@@ -17,9 +17,10 @@ interface UseWebRTCFileTransferOptions {
 
 type FileProgressPatch = { id: string; progress: number; status: TransferFile['status'] };
 
-const chunkSize = 16 * 1024;
-const maxBufferedAmount = 512 * 1024;
-const lowBufferedAmount = 256 * 1024;
+const chunkSize = 64 * 1024;
+const maxBufferedAmount = 4 * 1024 * 1024;
+const lowBufferedAmount = 1 * 1024 * 1024;
+const progressUpdateIntervalMs = 750;
 
 const downloadReceivedFile = (url: string, name: string) => {
     const link = document.createElement('a');
@@ -46,10 +47,16 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
     const transferRef = useRef<Transfer | null>(transfer);
     const chunksRef = useRef<ArrayBuffer[]>([]);
     const activeFileRef = useRef<{ id: string; name: string; size: number; receivedBytes: number } | null>(null);
+    const receivedFilesRef = useRef<ReceivedFile[]>([]);
+    const lastReceiverProgressUpdateRef = useRef(0);
 
     useEffect(() => {
         transferRef.current = transfer;
     }, [transfer]);
+
+    useEffect(() => {
+        receivedFilesRef.current = receivedFiles;
+    }, [receivedFiles]);
 
     const pauseUploads = useCallback(() => {
         isPausedRef.current = true;
@@ -282,6 +289,10 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
 
             chunksRef.current.push(chunk);
             activeFile.receivedBytes += chunk.byteLength;
+            const isFileComplete = activeFile.receivedBytes >= activeFile.size;
+            const now = performance.now();
+            if (!isFileComplete && now - lastReceiverProgressUpdateRef.current < progressUpdateIntervalMs) return;
+            lastReceiverProgressUpdateRef.current = now;
 
             const filePatches = transfer.files.map((file) => {
                 if (file.id !== activeFile.id) {
@@ -291,12 +302,12 @@ export const useWebRTCFileTransfer = ({ transfer, role, localFiles = [] }: UseWe
                 return {
                     id: file.id,
                     progress: Math.min(100, (activeFile.receivedBytes / Math.max(activeFile.size, 1)) * 100),
-                    status: activeFile.receivedBytes >= activeFile.size ? 'completed' as const : 'transferring' as const,
+                    status: isFileComplete ? 'completed' as const : 'transferring' as const,
                 };
             });
 
-            const previousFiles = receivedFiles.reduce((total, file) => total + file.size, 0);
-            void updateProgress(previousFiles + activeFile.receivedBytes, filePatches, 'transferring');
+            const previousFiles = receivedFilesRef.current.reduce((total, file) => total + file.size, 0);
+            void updateProgress(previousFiles + activeFile.receivedBytes, filePatches, isFileComplete ? 'completed' : 'transferring');
         };
 
         peer.onicecandidate = (event) => {
